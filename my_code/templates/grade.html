@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+</head>
+<body>
+    {% if correct %}
+        <h1>Your answer was correct!</h1>
+    {% else %}
+        <h1>Your answer was incorrect</h1>
+    {% endif %}
+
+    {% for track in choices %}
+        <li>{{ track['name'] }} popularity: {{track['popularity']}}</li>
+    {% endfor %}
+
+    <a href="{{ url_for('home') }}">Play again</a>
+
+</body>
+</html>
