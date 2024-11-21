@@ -6,13 +6,14 @@ from .auth import get_spotify_oauth
 
 # Below code was used to refresh expired tokens, leaving this commented out until I fix user authentication bugs
 
-# @app.before_request
-# def refresh_token():
-#     if 'token_info' in session:
-#         token_info = session['token_info']
-#         if app.sp_oauth.is_token_expired(token_info):  # Check if the token is expired
-#             token_info = app.sp_oauth.refresh_access_token(token_info['refresh_token'])
-#             session['token_info'] = token_info  # Update the session with the new token
+@app.before_request
+def refresh_token():
+    if 'token_info' in session:
+        token_info = session['token_info']
+        sp_oauth = get_spotify_oauth()
+        if sp_oauth.is_token_expired(token_info):  # Check if the token is expired
+            token_info = sp_oauth.refresh_access_token(token_info['refresh_token'])
+            session['token_info'] = token_info  # Update the session with the new token
 
 
 @app.route('/', methods=('GET', 'POST'))
@@ -35,8 +36,6 @@ def home():
             index += 50
         else:
             break
-
-    flash(f'Token info: {token_info}')
 
     # Randomly select two tracks from user's saved tracks
     items = random.sample(saved_tracks, 2)
