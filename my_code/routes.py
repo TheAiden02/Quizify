@@ -1,23 +1,25 @@
 from flask import current_app as app
-from flask import Flask, session, redirect, url_for, request, render_template
+from flask import Flask, session, redirect, url_for, request, render_template, flash
 from spotipy import Spotify
 import random
+from .auth import get_spotify_oauth
+
+# Below code was used to refresh expired tokens, leaving this commented out until I fix user authentication bugs
+
+# @app.before_request
+# def refresh_token():
+#     if 'token_info' in session:
+#         token_info = session['token_info']
+#         if app.sp_oauth.is_token_expired(token_info):  # Check if the token is expired
+#             token_info = app.sp_oauth.refresh_access_token(token_info['refresh_token'])
+#             session['token_info'] = token_info  # Update the session with the new token
 
 
-@app.before_request
-def refresh_token():
-    if 'token_info' in session:
-        token_info = session['token_info']
-        if app.sp_oauth.is_token_expired(token_info):  # Check if the token is expired
-            token_info = app.sp_oauth.refresh_access_token(token_info['refresh_token'])
-            session['token_info'] = token_info  # Update the session with the new token
-
-
-@app.route('/')
+@app.route('/', methods=('GET', 'POST'))
 def home():
-        # Check if the user is already authenticated
+    # Check if the user is already authenticated
     if 'token_info' not in session:
-        return render_template('login.html')  # Show a "Login with Spotify" button
+        return redirect(url_for('auth.login')) 
 
     token_info = session.get('token_info')
     sp = Spotify(auth=token_info['access_token'])
@@ -34,16 +36,28 @@ def home():
         else:
             break
 
+    flash(f'Token info: {token_info}')
+
     # Randomly select two tracks from user's saved tracks
     items = random.sample(saved_tracks, 2)
-    choices = [
-        {
-            'name': item['track']['name'],
-            'uri': item['track']['uri'],
-            'popularity': item['track']['popularity']
-        }
-        for item in items
-    ]
+
+    choices = []
+    for item in items:
+        name = item['track']['name']
+        uri = item['track']['uri']
+        popularity = item['track']['popularity']
+        artists = item['track']['artists']
+        artist_names = [artist['name'] for artist in artists]
+        artist_names_str = ', '.join(artist_names)
+
+        choice = {
+                'name': name,
+                'uri': uri,
+                'popularity': popularity,
+                'artists': artist_names_str
+            }
+        choices.append(choice)
+
 
     # Find the more popular track. If tracks are tied, reload page and regenerate choices.
     most_popular = choices[0]
@@ -65,16 +79,11 @@ def grade():
     correct = selected_track == most_popular
     return render_template('grade.html', correct=correct, choices=choices)
 
-
-@app.route('/login')
-def login():
-    auth_url = app.sp_oauth.get_authorize_url()
-    return redirect(auth_url)
-
 @app.route('/callback')
 def callback():
+    sp_oauth = get_spotify_oauth()
     code = request.args.get('code')
-    token_info = app.sp_oauth.get_access_token(code)
+    token_info = sp_oauth.get_access_token(code)
     session['token_info'] = token_info
     return redirect(url_for('home'))
 
