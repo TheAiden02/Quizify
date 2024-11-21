@@ -36,7 +36,6 @@ def home():
         else:
             break
 
-    flash(f'Token info: {token_info}')
 
     # Randomly select two tracks from user's saved tracks
     items = random.sample(saved_tracks, 2)
