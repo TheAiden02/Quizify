@@ -2,7 +2,7 @@ from flask import current_app as app
 from flask import Flask, session, redirect, url_for, request, render_template, flash
 from spotipy import Spotify
 import random
-from .auth import get_spotify_oauth
+from .auth import get_spotify_oauth, login_required
 
 # Below code was used to refresh expired tokens, leaving this commented out until I fix user authentication bugs
 
@@ -15,7 +15,7 @@ def refresh_token():
             token_info = sp_oauth.refresh_access_token(token_info['refresh_token'])
             session['token_info'] = token_info  # Update the session with the new token
 
-
+@login_required
 @app.route('/', methods=('GET', 'POST'))
 def home():
     # Check if the user is already authenticated
@@ -65,10 +65,15 @@ def home():
     elif choices[1]['popularity'] == most_popular['popularity']:
         return redirect(url_for('home'))
     
+    # Count how many question played
+    session['question'] +=1
+    question = session['question']
+    
+
     session['song_choices'] = choices
     session['most_popular'] = most_popular['name']
 
-    return render_template('home.html', choices=choices)
+    return render_template('home.html', choices=choices, question=question)
 
 @app.route('/grade', methods=['POST'])
 def grade():

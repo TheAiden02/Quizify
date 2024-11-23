@@ -59,7 +59,6 @@ def login():
         user = db.execute(
             'SELECT * FROM user WHERE username = ?', (username,)
         ).fetchone()
-
         if user is None:
             error = 'Incorrect username.'
         elif not check_password_hash(user['password'], password):
@@ -67,6 +66,7 @@ def login():
 
         if error is None:
             session.clear()
+            session['question'] = 0
             session['user_id'] = user['id']
 
             sp_oauth = get_spotify_oauth()

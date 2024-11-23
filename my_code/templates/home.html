@@ -1,5 +1,11 @@
 {% extends 'base.html' %}
 
+{% block question %}
+<h2>
+    Question: {{ question }}
+</h2>
+{% endblock %}
+
 {% block header %}
   <h1>{% block title %}Home{% endblock %}</h1>
 {% endblock %}
