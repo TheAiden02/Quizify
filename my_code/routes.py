@@ -18,6 +18,7 @@ def refresh_token():
 @login_required
 @app.route('/', methods=('GET', 'POST'))
 def home():
+    question_Number = 0
     # Check if the user is already authenticated
     if 'token_info' not in session:
         return redirect(url_for('auth.login')) 
@@ -72,8 +73,14 @@ def home():
 
     session['song_choices'] = choices
     session['most_popular'] = most_popular['name']
+    selected_option = request.form.get('question_Number')
+    if question_Number:
+        # Store the selected option in session
+        session['question_Number'] = question_Number
 
-    return render_template('home.html', choices=choices, question=question)
+
+
+    return render_template('home.html', choices=choices, question=question, question_Number=question_Number)
 
 @app.route('/grade', methods=['POST'])
 def grade():
@@ -90,6 +97,8 @@ def callback():
     token_info = sp_oauth.get_access_token(code)
     session['token_info'] = token_info
     session['question'] = session.get('question', -1)  #define question counter
+    session['question_Number'] = session.get('question_Number', -1)  #Set number of questions -- infiate mode to come
+
     return redirect(url_for('home'))
 
 

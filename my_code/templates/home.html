@@ -2,7 +2,7 @@
 
 {% block question %}
 <h2>
-    Question: {{ question }}
+    Question: {{ question }} / {{question_Number}}
 </h2>
 {% endblock %}
 
@@ -11,11 +11,27 @@
 {% endblock %}
 
 {% block content %}
+    {% block start_Game %}
+    <h2>Pick a game mode!</h2>
+    <div class="game_Mode_container">
+        <form name="game_Mode" class="game_Mode">
+            <input type="radio" id="_5" name="question_Number" value=5></input>
+            <label for ="_5">5 questions</label><br>
+            <input type="radio" id="_10" name="question_Number" value=10></input>
+            <label for ="_10">10 questions</label><br>    
+            <input type="radio" id="_15" name="question_Number" value=15></input>
+            <label for ="_15">15 questions</label><br>
+            <button id="start_Game" type="submit" name="start_Game" >Start Game</button>
+        </form>
+    
+    </div>
+    
+    {% endblock %}
     <h1>Select the more popular song from below:</h1>
     <ul>
         {% for track in choices %}
             <li>
-                <form action="{{ url_for('grade') }}" method="post">
+                <form class="cards" action="{{ url_for('grade') }}" method="post">
                     <button type="submit" name="selected_track" value="{{ track['name'] }}">
                        <span class="title"> {{ track['name'] }}</span> by <span class="artist">{{ track['artists'] }}</span>
                     </button>

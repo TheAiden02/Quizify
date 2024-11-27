@@ -24,6 +24,9 @@
     {% for message in get_flashed_messages() %}
       <div class="flash">{{ message }}</div>
     {% endfor %}
-    {% block content %}{% endblock %}
+    {% block content %}
+      {% block start_Game %}{% endblock %}
+
+    {% endblock %}
   </section>
 </section>
