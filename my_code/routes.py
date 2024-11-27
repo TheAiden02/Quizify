@@ -89,7 +89,7 @@ def callback():
     code = request.args.get('code')
     token_info = sp_oauth.get_access_token(code)
     session['token_info'] = token_info
-    session['question'] = session.get('question', 0) + 1 #define question counter
+    session['question'] = session.get('question', -1)  #define question counter
     return redirect(url_for('home'))
 
 
