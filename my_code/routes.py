@@ -99,6 +99,57 @@ def callback():
     session['question'] = session.get('question', -1)  #define question counter
     session['question_Number'] = session.get('question_Number', -1)  #Set number of questions -- infiate mode to come
 
-    return redirect(url_for('home'))
+    return redirect(url_for('home.html'))
 
 
+
+@app.route('/gameCards', methods=['GET','POST'])
+def game_cards():
+    print("HELP")
+    #Get game mode
+    selected_option = request.form.get('question_Number')
+    if question_Number:
+        # Store the selected option in session
+        session['question_Number'] = selected_option
+        
+    # Get current user's saved tracks
+    saved_tracks = []
+    index = 0
+    while True:
+        results = sp.current_user_saved_tracks(limit=50, offset=index)
+        if len(results['items']):
+            saved_tracks.extend(results['items'])
+            index += 50
+        else:
+            break
+    # Randomly select two tracks from user's saved tracks
+    items = random.sample(saved_tracks, 2)
+    choices = []
+    for item in items:
+        name = item['track']['name']
+        uri = item['track']['uri']
+        popularity = item['track']['popularity']
+        artists = item['track']['artists']
+        artist_names = [artist['name'] for artist in artists]
+        artist_names_str = ', '.join(artist_names)
+        choice = {
+                'name': name,
+                'uri': uri,
+                'popularity': popularity,
+                'artists': artist_names_str
+            }
+        choices.append(choice)
+    # Find the more popular track. If tracks are tied, reload page and regenerate choices.
+    most_popular = choices[0]
+    if choices[1]['popularity'] > most_popular['popularity']:
+        most_popular = choices[1]
+    elif choices[1]['popularity'] == most_popular['popularity']:
+        return redirect(url_for('game_cards'))
+    
+    # Count how many question played
+    session['question'] +=1
+    question = session['question']
+    session['song_choices'] = choices
+    session['most_popular'] = most_popular['name']
+    print('test')
+    return render_template('gameCards.html', choices=choices, question=question, question_Number=question_Number)

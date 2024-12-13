@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block question %}
+<h2>
+    Question: {{ question }} / {{question_Number}}
+</h2>
+{% endblock %}
+{% block header %}
+    <h1>{% block title %}Quizify{% endblock %}</h1>
+{%endblock %}
+{%block content %}
+    <h1>Select the more popular song from below:</h1>
+    <ul>
+        {% for track in choices %}
+            <li>
+                <form class="cards" action="{{ url_for('grade') }}" method="post">
+                    <button type="submit" name="selected_track" value="{{ track['name'] }}">
+                    <span class="title"> {{ track['name'] }}</span> by <span class="artist">{{ track['artists'] }}</span>
+                    </button>
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
+{%endblock %}
+
