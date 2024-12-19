@@ -8,6 +8,7 @@ from .auth import get_spotify_oauth, login_required
 
 @app.before_request
 def refresh_token():
+    
     if 'token_info' in session:
         token_info = session['token_info']
         sp_oauth = get_spotify_oauth()
@@ -15,9 +16,11 @@ def refresh_token():
             token_info = sp_oauth.refresh_access_token(token_info['refresh_token'])
             session['token_info'] = token_info  # Update the session with the new token
 
+
 @login_required
 @app.route('/', methods=('GET', 'POST'))
 def home():
+
     question_Number = 0
     # Check if the user is already authenticated
     if 'token_info' not in session:
@@ -88,7 +91,15 @@ def grade():
     most_popular = session.get('most_popular')
     choices = session.get('song_choices')
     correct = selected_track == most_popular
-    return render_template('grade.html', correct=correct, choices=choices)
+    if selected_track := correct:
+       session['score']  +=1
+       print(session['score'])
+        
+
+    return render_template('grade.html', correct=correct, choices=choices, score=session['score'])
+
+
+
 
 @app.route('/callback')
 def callback():
