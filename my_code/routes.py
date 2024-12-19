@@ -91,12 +91,7 @@ def home():
 #Game_cards route - render game_cards.html + retrieve songs from database and display round options
 @app.route('/game_cards', methods=['GET','POST'])
 def game_cards():
-        if 'token_info' not in session:
-        return redirect(url_for('auth.login')) 
-
-    token_info = session.get('token_info')
-    sp = Spotify(auth=token_info['access_token'])
-
+    
     if request.method =='GET':
             # Get current user's saved tracks
         saved_tracks = []
