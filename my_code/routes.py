@@ -20,7 +20,13 @@ def refresh_token():
 @login_required
 @app.route('/', methods=('GET', 'POST'))
 def home():
+    try:
+        if not session['first_time']:
+            session['score'] = 0
 
+    except:
+        pass
+        
     question_Number = 0
     # Check if the user is already authenticated
     if 'token_info' not in session:
@@ -87,6 +93,7 @@ def home():
 
 @app.route('/grade', methods=['POST'])
 def grade():
+    session['first_time'] = True
     selected_track = request.form.get('selected_track')
     most_popular = session.get('most_popular')
     choices = session.get('song_choices')
