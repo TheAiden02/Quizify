@@ -30,69 +30,19 @@ def home():
 
     token_info = session.get('token_info')
     sp = Spotify(auth=token_info['access_token'])
-
-    # Get current user's saved tracks
-    # saved_tracks = []
-    # index = 0
-    # while True:
-    #     results = sp.current_user_saved_tracks(limit=50, offset=index)
-
-    #     if len(results['items']):
-    #         saved_tracks.extend(results['items'])
-    #         index += 50
-    #     else:
-    #         break
-
-    # # Randomly select two tracks from user's saved tracks
-    # items = random.sample(saved_tracks, 2)
-
-    # choices = []
-    # for item in items:
-    #     name = item['track']['name']
-    #     uri = item['track']['uri']
-    #     popularity = item['track']['popularity']
-    #     artists = item['track']['artists']
-    #     artist_names = [artist['name'] for artist in artists]
-    #     artist_names_str = ', '.join(artist_names)
-
-    #     choice = {
-    #             'name': name,
-    #             'uri': uri,
-    #             'popularity': popularity,
-    #             'artists': artist_names_str
-    #         }
-    #     choices.append(choice)
-
-
-    # # Find the more popular track. If tracks are tied, reload page and regenerate choices.
-    # most_popular = choices[0]
-    # if choices[1]['popularity'] > most_popular['popularity']:
-    #     most_popular = choices[1]
-    # elif choices[1]['popularity'] == most_popular['popularity']:
-    #     return redirect(url_for('home'))
-    
-    # # Count how many question played
-    # session['question'] +=1
-    # question = session['question']
-    
-
-    # session['song_choices'] = choices
-    # session['most_popular'] = most_popular['name']
-    # selected_option = request.form.get('question_Number')
-    # if question_Number:
-    #     # Store the selected option in session
-    #     session['question_Number'] = question_Number
         
     print(session)
-    return redirect(url_for('game_cards'))
-    # return render_template('home.html', question_Number=question_Number)
+    if request.method == 'POST':
+        return redirect(url_for('game_cards'))
+    return render_template('home.html')
+    #return render_template('home.html', question_Number=question_Number)
 
 
 #Game_cards route - render game_cards.html + retrieve songs from database and display round options
 @app.route('/game_cards', methods=['GET','POST'])
 def game_cards():
     
-    if request.method =='GET':
+    if request.method =='POST':
             # Get current user's saved tracks
         saved_tracks = []
         index = 0
@@ -144,11 +94,11 @@ def game_cards():
         if question_Number:
             # Store the selected option in session
             session['question_Number'] = question_Number
-            
+    
         print(session)
 
-
-        return render_template('game_cards.html', choices=choices, question=question, question_Number=question_Number)
+    print(choices)
+    return render_template('game_cards.html', choices=choices, question=question, question_Number=question_Number)
 
 
 
