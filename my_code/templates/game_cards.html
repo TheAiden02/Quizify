@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block question %}
+<h2>
+    Question: {{ session['score'] }} / {{question}}
+</h2>
+{% endblock %}
+
+{% block header %}
+  <h1>{% block title %}game_cards{% endblock %}</h1>
+{% endblock %}
+
+{% block game_cards}
+    <h1>Select the more popular song from below:</h1>
+    <ul>
+        {% for track in choices %}
+            <li>
+                <form class="cards" action="{{ url_for('grade') }}" method="post">
+                    <button type="submit" name="selected_track" value="{{ track['name'] }}">
+                    <span class="title"> {{ track['name'] }}</span> by <span class="artist">{{ track['artists'] }}</span>
+                    </button>
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
+{%endblock}

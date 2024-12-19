@@ -32,62 +32,133 @@ def home():
     sp = Spotify(auth=token_info['access_token'])
 
     # Get current user's saved tracks
-    saved_tracks = []
-    index = 0
-    while True:
-        results = sp.current_user_saved_tracks(limit=50, offset=index)
+    # saved_tracks = []
+    # index = 0
+    # while True:
+    #     results = sp.current_user_saved_tracks(limit=50, offset=index)
 
-        if len(results['items']):
-            saved_tracks.extend(results['items'])
-            index += 50
-        else:
-            break
+    #     if len(results['items']):
+    #         saved_tracks.extend(results['items'])
+    #         index += 50
+    #     else:
+    #         break
 
-    # Randomly select two tracks from user's saved tracks
-    items = random.sample(saved_tracks, 2)
+    # # Randomly select two tracks from user's saved tracks
+    # items = random.sample(saved_tracks, 2)
 
-    choices = []
-    for item in items:
-        name = item['track']['name']
-        uri = item['track']['uri']
-        popularity = item['track']['popularity']
-        artists = item['track']['artists']
-        artist_names = [artist['name'] for artist in artists]
-        artist_names_str = ', '.join(artist_names)
+    # choices = []
+    # for item in items:
+    #     name = item['track']['name']
+    #     uri = item['track']['uri']
+    #     popularity = item['track']['popularity']
+    #     artists = item['track']['artists']
+    #     artist_names = [artist['name'] for artist in artists]
+    #     artist_names_str = ', '.join(artist_names)
 
-        choice = {
-                'name': name,
-                'uri': uri,
-                'popularity': popularity,
-                'artists': artist_names_str
-            }
-        choices.append(choice)
+    #     choice = {
+    #             'name': name,
+    #             'uri': uri,
+    #             'popularity': popularity,
+    #             'artists': artist_names_str
+    #         }
+    #     choices.append(choice)
 
 
-    # Find the more popular track. If tracks are tied, reload page and regenerate choices.
-    most_popular = choices[0]
-    if choices[1]['popularity'] > most_popular['popularity']:
-        most_popular = choices[1]
-    elif choices[1]['popularity'] == most_popular['popularity']:
-        return redirect(url_for('home'))
+    # # Find the more popular track. If tracks are tied, reload page and regenerate choices.
+    # most_popular = choices[0]
+    # if choices[1]['popularity'] > most_popular['popularity']:
+    #     most_popular = choices[1]
+    # elif choices[1]['popularity'] == most_popular['popularity']:
+    #     return redirect(url_for('home'))
     
-    # Count how many question played
-    session['question'] +=1
-    question = session['question']
+    # # Count how many question played
+    # session['question'] +=1
+    # question = session['question']
     
 
-    session['song_choices'] = choices
-    session['most_popular'] = most_popular['name']
-    selected_option = request.form.get('question_Number')
-    if question_Number:
-        # Store the selected option in session
-        session['question_Number'] = question_Number
+    # session['song_choices'] = choices
+    # session['most_popular'] = most_popular['name']
+    # selected_option = request.form.get('question_Number')
+    # if question_Number:
+    #     # Store the selected option in session
+    #     session['question_Number'] = question_Number
         
     print(session)
+    return redirect(url_for('game_cards'))
+    # return render_template('home.html', question_Number=question_Number)
 
 
-    return render_template('home.html', choices=choices, question=question, question_Number=question_Number)
+#Game_cards route - render game_cards.html + retrieve songs from database and display round options
+@app.route('/game_cards', methods=['GET','POST'])
+def game_cards():
+        if 'token_info' not in session:
+        return redirect(url_for('auth.login')) 
 
+    token_info = session.get('token_info')
+    sp = Spotify(auth=token_info['access_token'])
+
+    if request.method =='GET':
+            # Get current user's saved tracks
+        saved_tracks = []
+        index = 0
+        while True:
+            results = sp.current_user_saved_tracks(limit=50, offset=index)
+
+            if len(results['items']):
+                saved_tracks.extend(results['items'])
+                index += 50
+            else:
+                break
+
+        # Randomly select two tracks from user's saved tracks
+        items = random.sample(saved_tracks, 2)
+
+        choices = []
+        for item in items:
+            name = item['track']['name']
+            uri = item['track']['uri']
+            popularity = item['track']['popularity']
+            artists = item['track']['artists']
+            artist_names = [artist['name'] for artist in artists]
+            artist_names_str = ', '.join(artist_names)
+
+            choice = {
+                    'name': name,
+                    'uri': uri,
+                    'popularity': popularity,
+                    'artists': artist_names_str
+                }
+            choices.append(choice)
+
+
+        # Find the more popular track. If tracks are tied, reload page and regenerate choices.
+        most_popular = choices[0]
+        if choices[1]['popularity'] > most_popular['popularity']:
+            most_popular = choices[1]
+        elif choices[1]['popularity'] == most_popular['popularity']:
+            return redirect(url_for('home'))
+        
+        # Count how many question played
+        session['question'] +=1
+        question = session['question']
+        
+
+        session['song_choices'] = choices
+        session['most_popular'] = most_popular['name']
+        selected_option = request.form.get('question_Number')
+        if question_Number:
+            # Store the selected option in session
+            session['question_Number'] = question_Number
+            
+        print(session)
+
+
+        return render_template('game_cards.html', choices=choices, question=question, question_Number=question_Number)
+
+
+
+#Grade Route - Render grade.html page + scoring logic 
+#To add - game mode logic that tracks how many questions are selected to be played(on home) + end game when appropriate
 @app.route('/grade', methods=['POST'])
 def grade():
     selected_track = request.form.get('selected_track')
@@ -100,7 +171,6 @@ def grade():
         
 
     return render_template('grade.html', correct=correct, choices=choices, score=session['score'])
-
 
 
 

@@ -14,21 +14,22 @@
     {% block start_Game %}
     <h2>Pick a game mode!</h2>
     <div class="game_Mode_container">
-        <form name="game_Mode" class="game_Mode">
+        <form name="game_Mode" class="game_Mode" method='POST'>
             <input type="radio" id="_5" name="question_Number" value=5></input>
             <label for ="_5">5 questions</label><br>
             <input type="radio" id="_10" name="question_Number" value=10></input>
             <label for ="_10">10 questions</label><br>    
             <input type="radio" id="_15" name="question_Number" value=15></input>
             <label for ="_15">15 questions</label><br>
-            <button id="start_Game" type="submit" name="gameCards" >Start Game</button>
+            <input type="submit" value="Start Game">
         </form>
     
     </div>
-    <h2><a href='/my_code/templates/gameCards.html'>Testing</a></h2>
+    <h2><a href='/game_cards.html'>Testing</a></h2>
+
 
     {% endblock %}
-    <h1>Select the more popular song from below:</h1>
+    <!-- <h1>Select the more popular song from below:</h1>
     <ul>
         {% for track in choices %}
             <li>
@@ -39,5 +40,5 @@
                 </form>
             </li>
         {% endfor %}
-    </ul>
+    </ul> -->
 {% endblock %}
