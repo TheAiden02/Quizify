@@ -5,6 +5,7 @@
 {% endblock %}
 
 {% block content %}
+<h2>{{score}}</h2>
     {% if correct %}
     <h1>Your answer was correct!</h1>
     {% else %}
@@ -14,6 +15,7 @@
     {% for track in choices %}
     <li>{{ track['name'] }} by {{ track['artists'] }} popularity: {{track['popularity']}}</li>
     {% endfor %}
+
 
     <a href="{{ url_for('home') }}">Play again</a>
 {% endblock %}
