@@ -1,4 +1,4 @@
 .venv/*
 .instance/*
-my_code/__pycache__/auth.cpython-312.pyc
-my_code/__pycache__/routes.cpython-312.pyc
+my_code/__pycache__
+.cache
