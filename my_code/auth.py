@@ -1,4 +1,4 @@
-import functools, requests
+import functools, requests, os
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for, current_app
 )
@@ -21,6 +21,28 @@ def get_spotify_oauth():
         scope='user-library-read user-read-private user-read-email',
         cache_path=None
     )
+
+def get_cache_dir():
+    # Get the directory where auth.py is located
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+
+    # Navigate to the parent directory (Quizify) and then to ".cache"
+    cache_dir = os.path.join(script_dir, "../.cache")
+
+    # Resolve the path to its absolute form
+    cache_dir = os.path.abspath(cache_dir)
+
+    return cache_dir
+
+def clear_cache():
+    cache_dir = get_cache_dir()
+
+    try:
+        os.remove(cache_dir)
+        print(f"Cache at {cache_dir} cleared.")
+
+    except:
+        print(f"No cache found at {cache_dir}.")
 
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
@@ -66,6 +88,7 @@ def login():
 
         if error is None:
             session.clear()
+            clear_cache()
             session['question'] = 0
             session['user_id'] = user['id']
 
@@ -94,6 +117,7 @@ def load_logged_in_user():
 @bp.route('/logout')
 def logout():
     session.clear()
+    clear_cache()
     return redirect(url_for('home'))
 
 def login_required(view):
