@@ -2,7 +2,7 @@
 
 {% block question %}
 <h2>
-    Question: {{ question }} / {{question_Number}}
+    Question: {{ session['score'] }} / {{question}}
 </h2>
 {% endblock %}
 
@@ -21,11 +21,12 @@
             <label for ="_10">10 questions</label><br>    
             <input type="radio" id="_15" name="question_Number" value=15></input>
             <label for ="_15">15 questions</label><br>
-            <button id="start_Game" type="submit" name="start_Game" >Start Game</button>
+            <button id="start_Game" type="submit" name="gameCards" >Start Game</button>
         </form>
     
     </div>
-    
+    <h2><a href='/my_code/templates/gameCards.html'>Testing</a></h2>
+
     {% endblock %}
     <h1>Select the more popular song from below:</h1>
     <ul>
