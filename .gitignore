@@ -1,4 +1,4 @@
 .venv/*
 .instance/*
-my_code/__pycache__
+my_code/__pycache__/
 .cache
