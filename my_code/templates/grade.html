@@ -5,17 +5,10 @@
 {% endblock %}
 
 {% block content %}
-<h2>{{score}}</h2>
-    {% if correct %}
-    <h1>Your answer was correct!</h1>
-    {% else %}
-    <h1>Your answer was incorrect</h1>
-    {% endif %}
-
-    {% for track in choices %}
-    <li>{{ track['name'] }} by {{ track['artists'] }} popularity: {{track['popularity']}}</li>
-    {% endfor %}
+  <p2>Final score: {{ correct }}/{{ total }}</p2>
 
 
-    <a href="{{ url_for('home') }}">Play again</a>
+  <form name="new_game" action="{{ url_for('home') }}">
+    <input type="submit" value="New Game">
+  </form>
 {% endblock %}
