@@ -2,12 +2,12 @@
 
 {% block question %}
 <h2>
-    Question: {{ session['score'] }} / {{question}}
+    Question: {{ question }} / {{session['game_length']}}
 </h2>
 {% endblock %}
 
 {% block header %}
-  <h1>{% block title %}game_cards{% endblock %}</h1>
+  <h1>{% block title %}game cards{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
