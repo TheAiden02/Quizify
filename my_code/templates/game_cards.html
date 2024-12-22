@@ -1,8 +1,11 @@
 {% extends 'base.html' %}
 
 {% block question %}
+{% if not session[game_length] %}
+    {% set game_length = '∞' %}
+{% endif %}
 <h2>
-    Question: {{ session['score'] }} / {{question}}
+    Question: {{ question }} / {{ game_length }}
 </h2>
 {% endblock %}
 
@@ -23,4 +26,7 @@
             </li>
         {% endfor %}
     </ul>
+    <form action="{{ url_for('grade') }}">
+        <input type="submit"  value="End game">
+    </form>
 {% endblock %}
