@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block question %}
-{% if not session[game_length] %}
+{% if game_length == 0 %}
     {% set game_length = '∞' %}
 {% endif %}
 <h2>
