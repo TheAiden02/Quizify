@@ -52,12 +52,14 @@ def game_cards():
         choices = session.get('song_choices')
         correct = selected_track == most_popular
         session['question'] += 1
-        feedback = choices[0]['name'] + ' popularity: '  + str(choices[0]['popularity']) + '. ' + choices[1]['name'] + ' popularity: '  + str(choices[1]['popularity'])
+        session['feedback'] = choices[0]['name'] + ' popularity: '  + str(choices[0]['popularity']) + '. ' + choices[1]['name'] + ' popularity: '  + str(choices[1]['popularity'])
         if selected_track := correct:
             session['score']  +=1
-            flash('Correct! ' + feedback)
+            session['result'] = 'Correct! '
+            # flash('Correct! ' + feedback)
         else:
-            flash('Incorrect. ' + feedback)
+            session['result'] = 'Incorect. '
+            # flash('Incorrect. ' + feedback)
 
         if session['question'] == session['game_length']:
             return  redirect(url_for('grade'))
@@ -112,7 +114,7 @@ def game_cards():
     session['most_popular'] = most_popular['name']
 
 
-    return render_template('game_cards.html', choices=choices, question=question, game_length=session['game_length'])
+    return render_template('game_cards.html', choices=choices, question=question, game_length=session['game_length'], result=session['result'], feedback=session['feedback'])
 
 
 

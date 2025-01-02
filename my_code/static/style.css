@@ -132,3 +132,18 @@ p2{
     font-size: 25px;
 
 }
+
+.results{
+    display:flex;
+
+}
+
+#correct{
+    color:#61E786;
+    margin-right:10px;
+}
+
+#incorrect{
+    color:#cc2f2e;
+    margin-right:10px;
+}
