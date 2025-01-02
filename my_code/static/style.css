@@ -27,6 +27,13 @@ nav ul li a, nav ul li span, header .action { display: block; padding: 0.5rem; }
 input.danger { color: #cc2f2e; }
 input[type=submit] { align-self: start; min-width: 10em; }
 
+.startGameButton{
+    height:25px;
+}
+
+.startGameButton:hover{
+    box-shadow:5px 5px #001524;
+}
 
 .content ul{
     list-style-type: none;
@@ -100,12 +107,28 @@ input[type=submit] { align-self: start; min-width: 10em; }
 }
 
 
-#start_Game{
+.startGameButton{
     background-color:#61E786;
     box-shadow: 3px 0 #9792e3;
     height:75px;
     width:150px;
     color:#001524;
-    font-size: 25px;;
+    font-size: 25px;
 }
 
+
+p2{
+    font-size: 30px;
+    text-decoration: underline;
+    margin:auto;
+
+}
+#newGame input{
+   margin:30px auto;
+    box-shadow: 3px 0 #9792e3;
+    height:50px;
+    width:100px;
+    color:#001524;
+    font-size: 25px;
+
+}

@@ -21,8 +21,10 @@
     <header>
       {% block header %}{% endblock %}
     </header>
-    {% for message in get_flashed_messages() %}
-      <div class="flash">{{ message }}</div>
+    {% for message in get_flashed_messages() %} 
+  <!-- Figure out conditional display -> if blocks to display correct/incorrect divs with css background colors -->
+      <div class="flash">
+        {{ message }}</div>
     {% endfor %}
     {% block content %}
       {% block start_Game %}{% endblock %}
