@@ -27,15 +27,21 @@
     </div>
    
         <h1>Select the more popular song from below:</h1>
+
         <ul>
             {% for track in choices %}
-                <li>
-                    <form class="cards" method="post">
-                        <button type="submit" name="selected_track" value="{{ track['name'] }}">
-                        <span class="title"> {{ track['name'] }}</span> by <span class="artist">{{ track['artists'] }}</span>
-                        </button>
-                    </form>
-                </li>
+                <!-- <h2>{{ trackCover1 }} </h2> -->
+                
+                    <li>
+                        <form class="cards" method="post" >
+                            
+                            <button type="submit" name="selected_track" value="{{ track['name'] }}">
+                            <img src="{{ track['album']['images'][1]['url'] }}">
+                            </button>
+                            <span class="title"> {{ track['name'] }}</span> by <span class="artist">{{ track['artists'] }}</span>
+
+                        </form>
+                    </li>
             {% endfor %}
         </ul>
         <form action="{{ url_for('grade') }}">

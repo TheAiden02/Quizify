@@ -43,6 +43,12 @@ def home():
 #Game_cards route - render game_cards.html + retrieve songs from database and display round options
 @app.route('/game_cards', methods=['GET','POST'])
 def game_cards():
+    #Initiate the results variables
+    if 'result' not in session:
+        session['result'] = ''
+        session['feedback'] = ''
+        session['trackCover1'] ='Test'
+        album = ''
 
     # This block of code executes when the user clicks an answer. It increments session['question'] and session['score'] if correct, then calls the get again
     # If session['question'] exceeds the user-set session['game_length'] it instead redirects to grade page
@@ -91,12 +97,21 @@ def game_cards():
         artists = item['track']['artists']
         artist_names = [artist['name'] for artist in artists]
         artist_names_str = ', '.join(artist_names)
-
+        album = item['track']['album']
+        images = {
+            'url': item['track']['album']['images'][0]['url'],
+            'height': 300,
+            'width': 300
+        }
+        session['trackCover1'] == item['track']['album']['images'][0]['url']
+        
         choice = {
                 'name': name,
                 'uri': uri,
                 'popularity': popularity,
-                'artists': artist_names_str
+                'artists': artist_names_str,
+                'album':album
+              
             }
         choices.append(choice)
 
@@ -114,7 +129,9 @@ def game_cards():
     session['most_popular'] = most_popular['name']
 
 
-    return render_template('game_cards.html', choices=choices, question=question, game_length=session['game_length'], result=session['result'], feedback=session['feedback'])
+
+
+    return render_template('game_cards.html', choices=choices, question=question, game_length=session['game_length'], result=session['result'], feedback=session['feedback'], trackCover1=session['trackCover1'])
 
 
 
