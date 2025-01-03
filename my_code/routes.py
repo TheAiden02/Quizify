@@ -47,7 +47,6 @@ def game_cards():
     if 'result' not in session:
         session['result'] = ''
         session['feedback'] = ''
-        session['trackCover1'] ='Test'
         album = ''
 
     # This block of code executes when the user clicks an answer. It increments session['question'] and session['score'] if correct, then calls the get again
@@ -103,7 +102,7 @@ def game_cards():
             'height': 300,
             'width': 300
         }
-        session['trackCover1'] == item['track']['album']['images'][0]['url']
+
         
         choice = {
                 'name': name,
@@ -131,7 +130,7 @@ def game_cards():
 
 
 
-    return render_template('game_cards.html', choices=choices, question=question, game_length=session['game_length'], result=session['result'], feedback=session['feedback'], trackCover1=session['trackCover1'])
+    return render_template('game_cards.html', choices=choices, question=question, game_length=session['game_length'], result=session['result'], feedback=session['feedback'])
 
 
 

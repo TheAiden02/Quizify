@@ -38,13 +38,13 @@
                             <button type="submit" name="selected_track" value="{{ track['name'] }}">
                             <img src="{{ track['album']['images'][1]['url'] }}">
                             </button>
-                            <span class="title"> {{ track['name'] }}</span> by <span class="artist">{{ track['artists'] }}</span>
-
+                            <span class="trackName"><span class="title"> {{ track['name'] }}</span> by <span class="artist">{{ track['artists'] }}</span>
+                        </span>
                         </form>
                     </li>
             {% endfor %}
         </ul>
         <form action="{{ url_for('grade') }}">
-            <input type="submit"  value="End game">
+            <input id="endButton" type="submit"  value="End game">
         </form>
 {% endblock %}
