@@ -282,9 +282,15 @@ p2{
 #correct{
     color:#61E786;
     margin-right:10px;
+    text-shadow:2px #001524;
+    
 }
 
 #incorrect{
     color:#cc2f2e;
     margin-right:10px;
+}
+
+.artist{
+    max-width:60%;
 }
