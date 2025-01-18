@@ -12,7 +12,7 @@
             <h3>Number of questions</h3>
             <ul class="startMenu">
                 <li>
-                    <input type="radio" id="_5" name="question_Number" value=5></input>
+                    <input type="radio" id="_5" name="question_Number" value=5 checked="checked"></input>
                     <label for ="_5">5 questions</label>
                 </li>
                 <li>
@@ -29,20 +29,32 @@
             <h3>Song Selection</h3>
             <ul class="startMenu">
                 <li>
-                    <input type="radio" id="mySongs" name="songs" value="mySongs"></input>
-                    <label for ="mySongs">My Songs</label>
+                    <input type="radio" id="myLibrary" name="source" value="myLibrary" checked="checked"></input>
+                    <label for ="myLibrary">My Library</label>
                 </li>
                 <li>
-                    <input type="radio" id="spotifySongs" name="songs" value="spotifySongs">
-                    <label for="spotifySongs">Spotify Playlist</label>
+                    <input type="radio" id="spotify" name="source" value="spotify">
+                    <label for="spotify">Spotify Playlist</label>
                 </li>
                 <li>
-                    <label for="songs">Select a playlist</label>
-                    <select name="songs" id="songSelection">
-                        <option value="playlist1"> Playlist1</option>
-                        <option value="playlist2">Playlist2</option>
-                        <option value="playlist3">Playlist3</option>
-                    </select>
+                    <label for="selectedSource">Select a playlist</label>
+                    
+                    <!-- Removed conditional display for now, choose between players library or spotify genre specific playlist
+                    {% if source == 'myLibrary' %}
+                        <select name="selectedSource" id="myPlaylist">
+                            <option value="playlist1"> Playlist1</option>
+                            <option value="playlist2">Playlist2</option>
+                            <option value="playlist3">Playlist3</option>
+                        </select>
+                    {% else %} -->
+                        <select name="selectedSource" id="spotifyPlaylist">
+                            <option value="classicRock">Classic Rock</option>
+                            <option value="pop">Pop</option>
+                            <option value="indie">Indie</option>
+                            <option value="showtunes">Showtunes</option>
+                            <option value="country">Country</option>
+                        </select>
+                    {% endif %}
                 </li>
             </ul>
             <ul><li><input class="startGameButton" type="submit" value="Start Game"></li></ul>

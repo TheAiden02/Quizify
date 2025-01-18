@@ -306,6 +306,9 @@ p2{
     flex-direction: column;
     flex-wrap:wrap;
 }
+.game_Mode h3{
+    text-decoration: underline;
+}
 
 .game_Mode ul{
     width:100%;
