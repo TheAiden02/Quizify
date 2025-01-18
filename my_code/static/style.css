@@ -138,8 +138,10 @@ input.danger {
 }
 
 input[type=submit] {
-    align-self: start;
+    align-self: center;
     min-width: 10em;
+    flex-basis:1;
+
 }
 .startGameButton{
     height:25px;
@@ -293,4 +295,24 @@ p2{
 
 .artist{
     max-width:60%;
+}
+.startMenu{
+    flex-basis:1;
+
+}
+
+.game_Mode{
+    display:flex;
+    flex-direction: column;
+    flex-wrap:wrap;
+}
+
+.game_Mode ul{
+    width:100%;
+}
+option{
+    width:50px;
+}
+form label{
+    padding:10px;
 }

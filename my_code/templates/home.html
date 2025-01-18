@@ -9,23 +9,48 @@
     <h2>Pick a game mode!</h2>
     <div class="game_Mode_container">
         <form name="game_Mode" class="game_Mode" method='POST'>
-            <input type="radio" id="_5" name="question_Number" value=5></input>
-            <label for ="_5">5 questions</label><br>
-            <input type="radio" id="_10" name="question_Number" value=10></input>
-            <label for ="_10">10 questions</label><br>    
-            <input type="radio" id="_15" name="question_Number" value=15></input>
-            <label for ="_15">15 questions</label><br>
-            <input type="radio" id="_inf" name="question_Number" value="0"></input>
-            <label for ="_inf">Infinite</label><br>
-            <br>
-            <input type="radio" id="mySongs" name="songs" value="mySongs"></input>
-            <label for ="mySongs">My Songs</label>
-            <input type="radio" id="spotifySongs" name="songs" value="spotifySongs">
-            <label for="spotifySongs">Spotify Playlist</label>
-            <input class="startGameButton" type="submit" value="Start Game">
-        </form>
-    
+            <h3>Number of questions</h3>
+            <ul class="startMenu">
+                <li>
+                    <input type="radio" id="_5" name="question_Number" value=5></input>
+                    <label for ="_5">5 questions</label>
+                </li>
+                <li>
+                    <input type="radio" id="_10" name="question_Number" value=10></input>
+                    <label for ="_10">10 questions</label>   
+                </li>
+                <li><input type="radio" id="_15" name="question_Number" value=15></input>
+                    <label for ="_15">15 questions</label>
+                </li>
+                <li><input type="radio" id="_inf" name="question_Number" value="0"></input>
+                    <label for ="_inf">Infinite</label>
+                </li>
+            </ul>
+            <h3>Song Selection</h3>
+            <ul class="startMenu">
+                <li>
+                    <input type="radio" id="mySongs" name="songs" value="mySongs"></input>
+                    <label for ="mySongs">My Songs</label>
+                </li>
+                <li>
+                    <input type="radio" id="spotifySongs" name="songs" value="spotifySongs">
+                    <label for="spotifySongs">Spotify Playlist</label>
+                </li>
+                <li>
+                    <label for="songs">Select a playlist</label>
+                    <select name="songs" id="songSelection">
+                        <option value="playlist1"> Playlist1</option>
+                        <option value="playlist2">Playlist2</option>
+                        <option value="playlist3">Playlist3</option>
+                    </select>
+                </li>
+            </ul>
+            <ul><li><input class="startGameButton" type="submit" value="Start Game"></li></ul>
+            
+            
+        </form>    
     </div>
+
 
 
     {% endblock %}
