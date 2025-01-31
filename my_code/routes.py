@@ -36,6 +36,7 @@ def home():
         else:
             flash('You must select one option')
             return redirect(url_for('home'))
+        
     return render_template('home.html')
     #return render_template('home.html', question_Number=question_Number)
 
@@ -48,7 +49,6 @@ def game_cards():
         session['result'] = ''
         session['feedback'] = ''
         album = ''
-
     # This block of code executes when the user clicks an answer. It increments session['question'] and session['score'] if correct, then calls the get again
     # If session['question'] exceeds the user-set session['game_length'] it instead redirects to grade page
     if request.method == 'POST':
@@ -74,17 +74,31 @@ def game_cards():
     sp = Spotify(auth=token_info['access_token'])
 
     # Get current user's saved tracks
+    #Old code to be replaced - needs to be updated for new source selection logic
     saved_tracks = []
     index = 0
     while True:
         results = sp.current_user_saved_tracks(limit=50, offset=index)
-
         if len(results['items']):
             saved_tracks.extend(results['items'])
             index += 50
         else:
             break
+    
+    session['source']= request.form.get('source')
+    selectedSource = request.form.get('selectedSource')
+    print(session['source'])
 
+    if session['source'] == 'myLibrary':
+        results = sp.current_user_saved_tracks(limit=50, offset=index)
+        if len(results['items']):
+            saved_tracks.extend(results['items'])
+            index += 50
+        else:
+            break
+    else:
+        if selectedSource == 'classicRock':
+            results = 
     # Randomly select two tracks from user's saved tracks
     items = random.sample(saved_tracks, 2)
 
@@ -103,7 +117,7 @@ def game_cards():
             'width': 300
         }
 
-        
+   
         choice = {
                 'name': name,
                 'uri': uri,
@@ -130,7 +144,7 @@ def game_cards():
 
 
 
-    return render_template('game_cards.html', choices=choices, question=question, game_length=session['game_length'], result=session['result'], feedback=session['feedback'])
+    return render_template('game_cards.html', source=session['source'], choices=choices, question=question, game_length=session['game_length'], result=session['result'], feedback=session['feedback'])
 
 
 
