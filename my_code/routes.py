@@ -90,15 +90,15 @@ def game_cards():
     print(session['source'])
 
     if session['source'] == 'myLibrary':
-        results = sp.current_user_saved_tracks(limit=50, offset=index)
-        if len(results['items']):
-            saved_tracks.extend(results['items'])
-            index += 50
+        while True:
+            results = sp.current_user_saved_tracks(limit=50, offset=index)
+            if len(results['items']):
+                saved_tracks.extend(results['items'])
+                index += 50
+            else:
+                break
         else:
-            break
-    else:
-        if selectedSource == 'classicRock':
-            results = 
+                print("Rock")
     # Randomly select two tracks from user's saved tracks
     items = random.sample(saved_tracks, 2)
 
