@@ -27,9 +27,15 @@ def home():
         return redirect(url_for('auth.login')) 
 
     if request.method == 'POST':
-        selected_option = request.form.get('question_Number')
-        if selected_option: # Check to make sure the user selected a game mode
-            session['game_length'] = int(selected_option) # Store the selected option in session
+        selected_game_length = request.form.get('question_Number')
+        #Assign values at the start of game based on the home page selection
+        session['source']= request.form.get('source')
+        session['selectedSource'] = request.form.get('selectedSource')
+        print(session['source'])
+        print(session['selectedSource'])
+
+        if selected_game_length: # Check to make sure the user selected a game mode
+            session['game_length'] = int(selected_game_length) # Store the selected option in session
             session['question'] = 0
             session['score'] = 0
             return redirect(url_for('game_cards'))
@@ -65,40 +71,45 @@ def game_cards():
         else:
             session['result'] = 'Incorect. '
             # flash('Incorrect. ' + feedback)
+        
 
         if session['question'] == session['game_length']:
             return  redirect(url_for('grade'))
         return redirect(url_for('game_cards'))
 
+
     token_info = session.get('token_info')
     sp = Spotify(auth=token_info['access_token'])
+
 
     # Get current user's saved tracks
     #Old code to be replaced - needs to be updated for new source selection logic
     saved_tracks = []
     index = 0
-    while True:
+    playlist_id = ''
+    if session['source'] == 'myLibrary':
         results = sp.current_user_saved_tracks(limit=50, offset=index)
+    else:
+        match session['selectedSource']:
+            case 'classicRock':
+                playlist_id = '1ti3v0lLrJ4KhSTuxt4loZ'
+            case 'pop':
+                playlist_id = '6mtYuOxzl58vSGnEDtZ9uB'
+            case 'indie':
+                playlist_id = '30QV4edB1roGt1FnTNxqy1'
+            case 'rap':
+                playlist_id = '01MRi9jFGeSEEttKOk7VgR'
+            case 'showtunes':
+                playlist_id = '4717W6DDMFngWIaJGjDV5r'
+            case 'country':
+                playlist_id = '02t75h5hsNOw4VlC1Qad9Z'
+            case 'classical':
+                playlist_id = '27Zm1P410dPfedsdoO9fqm'
+        results = sp.playlist(playlist_id)
         if len(results['items']):
             saved_tracks.extend(results['items'])
             index += 50
-        else:
-            break
-    
-    session['source']= request.form.get('source')
-    selectedSource = request.form.get('selectedSource')
-    print(session['source'])
-
-    if session['source'] == 'myLibrary':
-        while True:
-            results = sp.current_user_saved_tracks(limit=50, offset=index)
-            if len(results['items']):
-                saved_tracks.extend(results['items'])
-                index += 50
-            else:
-                break
-        else:
-                print("Rock")
+            
     # Randomly select two tracks from user's saved tracks
     items = random.sample(saved_tracks, 2)
 
