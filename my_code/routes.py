@@ -22,18 +22,13 @@ def refresh_token():
 def home():
         
     question_Number = 0
-    # Check if the user is already authenticated
-    if 'token_info' not in session:
-        return redirect(url_for('auth.login')) 
 
     # Anything involving user input from the home page goes here
     if request.method == 'POST':
         selected_game_length = request.form.get('question_Number')
         #Assign values at the start of game based on the home page selection
-        session['source']= request.form.get('source')
+        session['source'] = request.form.get('source')
         session['selectedSource'] = request.form.get('selectedSource')
-        print(session['source'])
-        print(session['selectedSource'])
 
         if selected_game_length: # Check to make sure the user selected a game mode
             session['game_length'] = int(selected_game_length) # Store the selected option in session
@@ -51,6 +46,12 @@ def home():
 #Game_cards route - render game_cards.html + retrieve songs from database and display round options
 @app.route('/game_cards', methods=['GET','POST'])
 def game_cards():
+
+    # If the user is playing with their own library, make sure they are logged in
+    if session['source'] == 'myLibrary' and 'token_info' not in session:
+        return redirect(url_for('auth.login'))
+
+
     #Initiate the results variables
     if 'result' not in session:
         session['result'] = ''
@@ -83,8 +84,7 @@ def game_cards():
     sp = Spotify(auth=token_info['access_token'])
 
 
-    # Get current user's saved tracks
-    #Old code to be replaced - needs to be updated for new source selection logic
+    # Get tracks from user spotify library or spotify public playslist
     saved_tracks = []
     index = 0
     playlist_id = ''
