@@ -26,6 +26,7 @@ def home():
     if 'token_info' not in session:
         return redirect(url_for('auth.login')) 
 
+    # Anything involving user input from the home page goes here
     if request.method == 'POST':
         selected_game_length = request.form.get('question_Number')
         #Assign values at the start of game based on the home page selection
@@ -89,6 +90,9 @@ def game_cards():
     playlist_id = ''
     if session['source'] == 'myLibrary':
         results = sp.current_user_saved_tracks(limit=50, offset=index)
+        if len(results['items']):
+            saved_tracks.extend(results['items'])
+            index += 50
     else:
         match session['selectedSource']:
             case 'classicRock':
@@ -105,11 +109,11 @@ def game_cards():
                 playlist_id = '02t75h5hsNOw4VlC1Qad9Z'
             case 'classical':
                 playlist_id = '27Zm1P410dPfedsdoO9fqm'
-        results = sp.playlist(playlist_id)
+        results = sp.playlist_tracks(playlist_id)
         if len(results['items']):
             saved_tracks.extend(results['items'])
             index += 50
-            
+
     # Randomly select two tracks from user's saved tracks
     items = random.sample(saved_tracks, 2)
 
