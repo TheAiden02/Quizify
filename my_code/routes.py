@@ -21,7 +21,7 @@ def refresh_token():
 @app.route('/', methods=('GET', 'POST'))
 def home():
         
-    question_Number = 0
+    session['source'] = None
 
     # Anything involving user input from the home page goes here
     if request.method == 'POST':
@@ -172,16 +172,18 @@ def grade():
     total = session['game_length']
     return render_template('grade.html', correct=correct, total=total)
 
-
+# Spotify sends authentication data here after user logs into spotify
 @app.route('/callback')
 def callback():
     sp_oauth = get_spotify_oauth()
     code = request.args.get('code')
     token_info = sp_oauth.get_access_token(code)
     session['token_info'] = token_info
-    # session['question'] = session.get('question', -1)  #define question counter
-    # session['question_Number'] = session.get('question_Number', -1)  #Set number of questions -- infiate mode to come
 
-    return redirect(url_for('home'))
+    # If the user got here by clicking start game, session['source'] has been initialized and they should be sent to game_cards to start playing
+    if session['source'] != None:
+        return redirect(url_for('game_cards'))
+    else: # If the user got here by clicking login from the home page, they should be sent back to the home page where they can set up their game.
+        return redirect(url_for('home'))
 
 

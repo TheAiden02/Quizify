@@ -87,7 +87,6 @@ def login():
             error = 'Incorrect password.'
 
         if error is None:
-            session.clear()
             clear_cache()
             session['question'] = 0
             session['user_id'] = user['id']
