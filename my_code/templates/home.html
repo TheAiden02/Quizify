@@ -36,7 +36,7 @@
                     <input type="radio" id="spotify" name="source" value="spotify">
                     <label for="spotify">Spotify Playlist</label>
                 </li>
-                <li>
+                <li id="selectPlaylist">
                     <label for="selectedSource">Select a playlist</label>
                     
                     <!-- Removed conditional display for now, choose between players library or spotify genre specific playlist
@@ -47,13 +47,13 @@
                             <option value="playlist3">Playlist3</option>
                         </select>
                     {% else %} -->
-                        <select name="selectedSource" id="spotifyPlaylist">
-                            <option value="classicRock">Classic Rock</option>
-                            <option value="pop">Pop</option>
-                            <option value="indie">Indie</option>
-                            <option value="showtunes">Showtunes</option>
-                            <option value="country">Country</option>
-                        </select>
+                    <select name="selectedSource" id="spotifyPlaylist">
+                        <option value="classicRock">Classic Rock</option>
+                        <option value="pop">Pop</option>
+                        <option value="indie">Indie</option>
+                        <option value="showtunes">Showtunes</option>
+                        <option value="country">Country</option>
+                    </select>
                     {% endif %}
                 </li>
             </ul>
@@ -66,16 +66,32 @@
 
 
     {% endblock %}
-    <!-- <h1>Select the more popular song from below:</h1>
-    <ul>
-        {% for track in choices %}
-            <li>
-                <form class="cards" action="{{ url_for('grade') }}" method="post">
-                    <button type="submit" name="selected_track" value="{{ track['name'] }}">
-                       <span class="title"> {{ track['name'] }}</span> by <span class="artist">{{ track['artists'] }}</span>
-                    </button>
-                </form>
-            </li>
-        {% endfor %}
-    </ul> -->
+{% endblock %}
+
+{% block javascript %}
+<script>
+    // Add event listeners for either radio button being clicked. When either button is clicked, toggleInvis is called
+    document.getElementById("myLibrary").addEventListener("click", toggleInvis)
+    document.getElementById("spotify").addEventListener("click", toggleInvis)
+    
+    // Get the playlist dropdown and its label so we can toggle their visibility
+    const element = document.getElementById("selectPlaylist")
+
+    // Make sure the dropdown displays correctly when the page first loads/reloads
+    if (document.getElementById("myLibrary").checked){
+            element.classList.add("hidden")
+        }
+    else{
+        element.classList.remove("hidden")
+    }
+
+    function toggleInvis(){
+        if (document.getElementById("myLibrary").checked){
+            element.classList.add("hidden")
+        }
+        else{
+            element.classList.remove("hidden")
+        }
+    }
+</script>
 {% endblock %}

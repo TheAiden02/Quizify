@@ -319,3 +319,7 @@ option{
 form label{
     padding:10px;
 }
+
+.hidden{
+    visibility: hidden;
+}
