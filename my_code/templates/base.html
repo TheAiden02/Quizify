@@ -8,7 +8,7 @@
   <section class="page">
     <nav>
       
-      <h1>Quizify</h1>
+      <h1><a href="{{ url_for('home') }}">Quizify</a></h1>
       <h2>{% block question %}{% endblock %} </h2>
       <ul>
         {% if g.user %}
