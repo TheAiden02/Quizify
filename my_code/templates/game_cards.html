@@ -15,36 +15,88 @@
 
 
 {% block content %}
-    <div class="results">
-        {%  block results %}
-        {% if result[0] == 'C' %}
-            <h3 id="correct">{{ result }} :) </h3>
-        {% else %}
-            <h3 id="incorrect">{{ result }} :( </h3>
-        {% endif %}
-        <h3>{{feedback}}</h3>
-    {% endblock %}
-    </div>
    
         <h1>Select the more popular song from below:</h1>
 
         <ul>
-            {% for track in choices %}
-                <!-- <h2>{{ trackCover1 }} </h2> -->
-                
-                    <li>
-                        <form class="cards" method="post" >
-                            
-                            <button type="submit" name="selected_track" value="{{ track['name'] }}">
-                            <img src="{{ track['album']['images'][1]['url'] }}">
-                            </button>
-                            <span class="trackName"><span class="title"> {{ track['name'] }}</span> by <span class="artist">{{ track['artists'] }}</span>
-                        </span>
-                        </form>
-                    </li>
-            {% endfor %}
+            <form class="cards" method="post" >
+                <li>        
+                    <h3 id="popReveal1">Popularity: {{choices[0]['popularity']}}</h3>
+                    <label>
+                        <button type="submit" name="selected_track" value="{{ choices[0]['name'] }}" class="gamecard" data-track="{{choices[0]}}">
+                        <img src="{{ choices[0]['album']['images'][1]['url'] }}">
+                    </label>
+                    <span class="trackName">
+                        <span class="title"> {{ choices[0]['name'] }}</span> by <span class="artist">{{ choices[0]['artists'] }}</span>
+                    </span>
+                </li>
+                <li>
+                    <h3 id="popReveal2">Popularity: {{choices[1]['popularity']}}</h3>
+                    <label>
+                        <button type="submit" name="selected_track" value="{{ choices[1]['name'] }}" class="gamecard" data-track="{{choices[1]}}">
+                        <img src="{{ choices[1]['album']['images'][1]['url'] }}">
+                    </label>
+                    <span class="trackName">
+                        <span class="title"> {{ choices[1]['name'] }}</span> by <span class="artist">{{ choices[1]['artists'] }}</span>
+                    </span>
+                </li>
+            </form>
         </ul>
+        <div id="result"></div>
         <form action="{{ url_for('grade') }}">
             <input id="endButton" type="submit"  value="End game">
-        </form>
+        </form>         
+{% endblock %}
+
+{% block javascript %}
+<script>
+
+document.addEventListener("DOMContentLoaded", function() {
+    const buttons = document.querySelectorAll(".gamecard");
+    const resultDiv = document.getElementById("result");
+
+    buttons.forEach(button => {
+        button.addEventListener("click", function(event) {
+            event.preventDefault();  // Prevent full page reload
+
+            let selectedSong = this.getAttribute("data-track");
+            console.log(selectedSong)
+
+            fetch("/game_cards", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: "selected_track=" + selectedSong
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Show the result before loading new songs
+                resultDiv.innerHTML = `
+                    <p>${data.is_correct ? "✅ Correct!" : "❌ Incorrect"}</p>
+                    <p>Correct song: ${data.correct_song} (Popularity: ${data.correct_popularity})</p>
+                    <p>Your choice popularity: ${data.user_choice_popularity}</p>
+                    <p>Score: ${data.score}</p>
+                    <button id="nextQuestion">Next</button>
+                `;
+                
+                buttons.forEach( button => {
+                if (data.user_choice === data.correct_song){
+                    buttons.classList.add("correct")
+                } else{
+                    button.classList.add("incorrect")
+                }})
+
+                // Disable buttons so the user can't select again
+                buttons.forEach(btn => btn.disabled = true);
+
+                // Add event listener for the "Next" button
+                document.getElementById("nextQuestion").addEventListener("click", function() {
+                    location.reload(); // Reload to get new songs
+                });
+            })
+            .catch(error => console.error("Error:", error));
+        });
+    });
+});
+
+</script>
 {% endblock %}

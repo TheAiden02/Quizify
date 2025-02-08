@@ -1,8 +1,9 @@
 from flask import current_app as app
-from flask import Flask, session, redirect, url_for, request, render_template, flash
+from flask import Flask, session, redirect, url_for, request, render_template, flash, jsonify
 from spotipy import Spotify
 import random
 from .auth import get_spotify_oauth, login_required
+import ast
 
 # Below code was used to refresh expired tokens, leaving this commented out until I fix user authentication bugs
 
@@ -40,7 +41,6 @@ def home():
             return redirect(url_for('home'))
         
     return render_template('home.html')
-    #return render_template('home.html', question_Number=question_Number)
 
 
 #Game_cards route - render game_cards.html + retrieve songs from database and display round options
@@ -51,33 +51,41 @@ def game_cards():
     if session['source'] == 'myLibrary' and 'token_info' not in session:
         return redirect(url_for('auth.login'))
 
-
     #Initiate the results variables
     if 'result' not in session:
         session['result'] = ''
         session['feedback'] = ''
         album = ''
+
     # This block of code executes when the user clicks an answer. It increments session['question'] and session['score'] if correct, then calls the get again
     # If session['question'] exceeds the user-set session['game_length'] it instead redirects to grade page
     if request.method == 'POST':
         selected_track = request.form.get('selected_track')
+        print(selected_track)
+        selected_track = ast.literal_eval(selected_track)
         most_popular = session.get('most_popular')
         choices = session.get('song_choices')
         correct = selected_track == most_popular
         session['question'] += 1
         session['feedback'] = choices[0]['name'] + ' popularity: '  + str(choices[0]['popularity']) + '. ' + choices[1]['name'] + ' popularity: '  + str(choices[1]['popularity'])
-        if selected_track := correct:
+        if correct:
             session['score']  +=1
             session['result'] = 'Correct! '
-            # flash('Correct! ' + feedback)
         else:
             session['result'] = 'Incorect. '
-            # flash('Incorrect. ' + feedback)
         
 
         if session['question'] == session['game_length']:
             return  redirect(url_for('grade'))
-        return redirect(url_for('game_cards'))
+        print(type(selected_track))
+        return jsonify({
+            'user_choice': selected_track,
+            'is_correct': correct,
+            'correct_song': most_popular,
+            'correct_popularity': most_popular['popularity'],
+            'user_choice_popularity': selected_track['popularity'],
+            'score': session['score']
+        })
 
 
     token_info = session.get('token_info')
@@ -145,6 +153,7 @@ def game_cards():
 
 
     # Find the more popular track. If tracks are tied, reload page and regenerate choices.
+    print(choices[1])
     most_popular = choices[0]
     if choices[1]['popularity'] > most_popular['popularity']:
         most_popular = choices[1]
@@ -154,14 +163,16 @@ def game_cards():
     question = session['question']
 
     session['song_choices'] = choices
-    session['most_popular'] = most_popular['name']
+    session['most_popular'] = most_popular
 
 
 
 
-    return render_template('game_cards.html', source=session['source'], choices=choices, question=question, game_length=session['game_length'], result=session['result'], feedback=session['feedback'])
+    return render_template('game_cards.html', source=session['source'], choices=choices, question=question, game_length=session['game_length'], result=session['result'], feedback=session['feedback'], reveal=False)
 
-
+@app.route('/game_cards_answers')
+def game_cards_answers(source, choices, question, game_length, result, feedback):
+    return render_template('game_cards.html', source=source, choices=choices, question=question, game_length=game_length, result=result, feedback=feedback, reveal=True)
 
 #Grade Route - Display final score after user has completed the game
 @app.route('/grade', methods=['GET','POST'])
