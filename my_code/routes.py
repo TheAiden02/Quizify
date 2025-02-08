@@ -88,8 +88,6 @@ def game_cards():
         })
 
 
-    token_info = session.get('token_info')
-    sp = Spotify(auth=token_info['access_token'])
 
 
     # Get tracks from user spotify library or spotify public playslist
@@ -97,11 +95,19 @@ def game_cards():
     index = 0
     playlist_id = ''
     if session['source'] == 'myLibrary':
+        # get access token for logged-in user
+        token_info = session.get('token_info')
+        sp = Spotify(auth=token_info['access_token'])
+
         results = sp.current_user_saved_tracks(limit=50, offset=index)
         if len(results['items']):
             saved_tracks.extend(results['items'])
             index += 50
     else:
+        # get non-user-specific access token with client credentials flow
+        auth_manager = get_spotify_oauth('cli')
+        sp = Spotify(auth_manager=auth_manager)
+        
         match session['selectedSource']:
             case 'classicRock':
                 playlist_id = '1ti3v0lLrJ4KhSTuxt4loZ'

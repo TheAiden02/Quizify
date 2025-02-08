@@ -4,23 +4,29 @@ from flask import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 from my_code.db import get_db
-from spotipy import SpotifyOAuth
+from spotipy import SpotifyOAuth, SpotifyClientCredentials
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
-def get_spotify_oauth():
+def get_spotify_oauth(flow='auth'):
     # Spotify authentication details
     CLIENT_ID = '89069cde77394ef99b8e87b43447e409'
     CLIENT_SECRET = '1c98e5f5b07140e1acfe94c9105bbe12'
     REDIRECT_URI = 'http://localhost:5000/callback'
 
-    return SpotifyOAuth(
-        client_id=CLIENT_ID,
-        client_secret=CLIENT_SECRET,
-        redirect_uri=REDIRECT_URI,
-        scope='user-library-read user-read-private user-read-email',
-        cache_path=None
-    )
+    if flow == 'auth':
+        return SpotifyOAuth(
+            client_id=CLIENT_ID,
+            client_secret=CLIENT_SECRET,
+            redirect_uri=REDIRECT_URI,
+            scope='user-library-read user-read-private user-read-email',
+            cache_path=None
+        )
+    if flow == 'cli':
+        return SpotifyClientCredentials(
+            client_id=CLIENT_ID,
+            client_secret=CLIENT_SECRET
+        )
 
 def get_cache_dir():
     # Get the directory where auth.py is located
@@ -87,7 +93,6 @@ def login():
             error = 'Incorrect password.'
 
         if error is None:
-            clear_cache()
             session['question'] = 0
             session['user_id'] = user['id']
 
