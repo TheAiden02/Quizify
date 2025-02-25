@@ -21,9 +21,9 @@
         <ul>
             <form class="cards" method="post" >
                 <li>        
-                    <h3 id="popReveal1">Popularity: {{choices[0]['popularity']}}</h3>
+                    <h3 class="popReveal">Popularity: {{choices[0]['popularity']}}</h3>
                     <label>
-                        <button type="submit" name="selected_track" value="{{ choices[0]['name'] }}" class="gamecard" data-track="{{choices[0]}}">
+                        <button type="submit" name="selected_track" value="{{ choices[0]['name'] }}" class="gamecard" data-track="{{choices[0]}}" data-track-uri="{{choices[0]['uri']}}">
                         <img src="{{ choices[0]['album']['images'][1]['url'] }}">
                     </label>
                     <span class="trackName">
@@ -31,9 +31,9 @@
                     </span>
                 </li>
                 <li>
-                    <h3 id="popReveal2">Popularity: {{choices[1]['popularity']}}</h3>
+                    <h3 class="popReveal">Popularity: {{choices[1]['popularity']}}</h3>
                     <label>
-                        <button type="submit" name="selected_track" value="{{ choices[1]['name'] }}" class="gamecard" data-track="{{choices[1]}}">
+                        <button type="submit" name="selected_track" value="{{ choices[1]['name'] }}" class="gamecard" data-track="{{choices[1]}}" data-track-uri="{{choices[1]['uri']}}">
                         <img src="{{ choices[1]['album']['images'][1]['url'] }}">
                     </label>
                     <span class="trackName">
@@ -50,53 +50,78 @@
 
 {% block javascript %}
 <script>
+let correct
 
 document.addEventListener("DOMContentLoaded", function() {
     const buttons = document.querySelectorAll(".gamecard");
     const resultDiv = document.getElementById("result");
+    const popReveals = document.querySelectorAll(".popReveal")
+
+    popReveals.forEach(pop =>{
+        pop.classList.add("hidden")
+    })
 
     buttons.forEach(button => {
         button.addEventListener("click", function(event) {
             event.preventDefault();  // Prevent full page reload
 
             let selectedSong = this.getAttribute("data-track");
-            console.log(selectedSong)
+            // let selectedSongUri = this.getAttribute("data-track-uri")
 
             fetch("/game_cards", {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: "selected_track=" + selectedSong
+                body: "selected_track=" + encodeURIComponent(selectedSong)
             })
             .then(response => response.json())
             .then(data => {
-                // Show the result before loading new songs
+                let button_text = ""
+                if(data.last_question){
+                    button_text = "Final score"
+                } else{
+                    button_text = "Next"
+                }
+
+                popReveals.forEach(pop =>{
+                    pop.classList.remove("hidden")
+                })
+
+                // Show the result
                 resultDiv.innerHTML = `
                     <p>${data.is_correct ? "✅ Correct!" : "❌ Incorrect"}</p>
-                    <p>Correct song: ${data.correct_song} (Popularity: ${data.correct_popularity})</p>
-                    <p>Your choice popularity: ${data.user_choice_popularity}</p>
                     <p>Score: ${data.score}</p>
-                    <button id="nextQuestion">Next</button>
+                    <button id="nextQuestion">${button_text}</button>
                 `;
-                
-                buttons.forEach( button => {
-                if (data.user_choice === data.correct_song){
-                    buttons.classList.add("correct")
-                } else{
-                    button.classList.add("incorrect")
-                }})
-
                 // Disable buttons so the user can't select again
-                buttons.forEach(btn => btn.disabled = true);
-
+                buttons.forEach(btn => {
+                    btn.disabled = true
+                    if (btn.getAttribute("data-track-uri") === data.correct_song){
+                        btn.classList.add("correct")
+                    }
+                    else{
+                        btn.classList.add("incorrect")
+                    }
+                });
+            
                 // Add event listener for the "Next" button
                 document.getElementById("nextQuestion").addEventListener("click", function() {
-                    location.reload(); // Reload to get new songs
+                    // Since this redirects to a literal url, it needs to be updated whenever we start properly hosting quizify
+                    if (data.last_question){
+                        location.href = "http://localhost:5000/grade" // Go to grade page
+                        } 
+                    else{
+                        location.reload() // Load next question
+                    }
                 });
+                
+
             })
             .catch(error => console.error("Error:", error));
         });
     });
 });
+
+
 
 </script>
 {% endblock %}

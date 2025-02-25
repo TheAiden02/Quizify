@@ -4,6 +4,7 @@ from spotipy import Spotify
 import random
 from .auth import get_spotify_oauth, login_required
 import ast
+import json
 
 # Below code was used to refresh expired tokens, leaving this commented out until I fix user authentication bugs
 
@@ -33,7 +34,7 @@ def home():
 
         if selected_game_length: # Check to make sure the user selected a game mode
             session['game_length'] = int(selected_game_length) # Store the selected option in session
-            session['question'] = 0
+            session['question'] = 1
             session['score'] = 0
             return redirect(url_for('game_cards'))
         else:
@@ -57,34 +58,31 @@ def game_cards():
         session['feedback'] = ''
         album = ''
 
-    # This block of code executes when the user clicks an answer. It increments session['question'] and session['score'] if correct, then calls the get again
-    # If session['question'] exceeds the user-set session['game_length'] it instead redirects to grade page
+    # This block of code executes when the user clicks an answer. It increments question number, score if correct, and sends data to the client for displaying the result.
     if request.method == 'POST':
         selected_track = request.form.get('selected_track')
-        print(selected_track)
         selected_track = ast.literal_eval(selected_track)
         most_popular = session.get('most_popular')
+        most_popular_uri = most_popular.get('uri')
         choices = session.get('song_choices')
-        correct = selected_track == most_popular
+        correct = selected_track['uri'] == most_popular_uri
         session['question'] += 1
         session['feedback'] = choices[0]['name'] + ' popularity: '  + str(choices[0]['popularity']) + '. ' + choices[1]['name'] + ' popularity: '  + str(choices[1]['popularity'])
+        last_question = session['question'] == session['game_length'] + 1
         if correct:
-            session['score']  +=1
+            session['score']  += 1
             session['result'] = 'Correct! '
         else:
             session['result'] = 'Incorect. '
         
-
-        if session['question'] == session['game_length']:
-            return  redirect(url_for('grade'))
-        print(type(selected_track))
         return jsonify({
             'user_choice': selected_track,
             'is_correct': correct,
-            'correct_song': most_popular,
+            'correct_song': most_popular_uri,
             'correct_popularity': most_popular['popularity'],
             'user_choice_popularity': selected_track['popularity'],
-            'score': session['score']
+            'score': session['score'],
+            'last_question': last_question
         })
 
 
@@ -100,6 +98,7 @@ def game_cards():
         sp = Spotify(auth=token_info['access_token'])
 
         results = sp.current_user_saved_tracks(limit=50, offset=index)
+        print(type(results))
         if len(results['items']):
             saved_tracks.extend(results['items'])
             index += 50
@@ -124,6 +123,7 @@ def game_cards():
             case 'classical':
                 playlist_id = '27Zm1P410dPfedsdoO9fqm'
         results = sp.playlist_tracks(playlist_id)
+        print(type(results))
         if len(results['items']):
             saved_tracks.extend(results['items'])
             index += 50
@@ -148,18 +148,16 @@ def game_cards():
 
    
         choice = {
-                'name': name,
-                'uri': uri,
-                'popularity': popularity,
-                'artists': artist_names_str,
-                'album':album
-              
+                "name": name,
+                "uri": uri,
+                "popularity": popularity,
+                "artists": artist_names_str,
+                "album":album
             }
         choices.append(choice)
 
 
     # Find the more popular track. If tracks are tied, reload page and regenerate choices.
-    print(choices[1])
     most_popular = choices[0]
     if choices[1]['popularity'] > most_popular['popularity']:
         most_popular = choices[1]
@@ -170,7 +168,6 @@ def game_cards():
 
     session['song_choices'] = choices
     session['most_popular'] = most_popular
-
 
 
 
