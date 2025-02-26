@@ -9,12 +9,14 @@
 
 {% for playlist in playlists %}
 <span>
-    <ul>{{ playlist[0] }}</ul>
-    <form action="post">
+    <a href="{{ playlist['playlist_url' ]}}" target="_blank">{{ playlist['playlist_name'] }}</a>
+    <form action="/profile/remove_playlist" method="post">
+        <input name="playlist_name" type="hidden" value="{{ playlist['playlist_name'] }}">
         <button type="submit">Remove</button>
     </form>
 </span>
 {% endfor %}
+
 <form action="/profile/add_playlist" method="post"> 
     <h3>Add playlist</h3>
     <span>

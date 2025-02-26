@@ -191,16 +191,21 @@ def grade():
 @app.route('/profile')
 def profile():
     playlists = []
+    playlist_names = []
+    playlist_urls = []
     db = get_db()
     user_id = session.get('user_id')
     print(type(user_id))
     playlists = db.execute(
-        'SELECT playlist_name FROM user_playlists WHERE user_id=?', (user_id,)
+        'SELECT * FROM user_playlists WHERE user_id=?', (user_id,)
     ).fetchall()
-    return render_template('profile.html', playlists=playlists)
+
+    return render_template('profile.html', playlists = playlists)
 
 @app.route('/profile/add_playlist', methods=['POST'])
 def add_playlist():
+    if "user_id" not in session:
+        return redirect(url_for('login'))
     response = {}
     playlist_url = request.form.get('playlist_url')
     db = get_db()
@@ -211,9 +216,15 @@ def add_playlist():
     try:
         response = sp.playlist(playlist_url)
         playlist_name = response["name"]
-    except SpotifyException: 
-        print("Spotify exception")
-        flash(SpotifyException)
+    except SpotifyException as e: 
+        match str(e.http_status):
+            case "400":
+                error_msg = "Error 400: bad request. Make sure to input a valid Spotify URL."
+            case "404":
+                error_msg = "Error 404: playlist not found. Make sure that the URL is correct and the playlist was not created by Spotify."
+            case _:
+                error_msg = f"Error {e.http_status}. Double check your URL and try again."
+        flash(error_msg)
         return redirect(url_for('profile'))
     except:
         flash("Some error occurred. Wish I could tell you more lol sorry")
@@ -238,6 +249,23 @@ def add_playlist():
             print(f"error {db.Error.sqlite_errorcode}: {db.Error.sqlite_errorname}")
         except:
             print("An unkown error occurred when trying to insert playlist")
+
+    return redirect(url_for('profile'))
+
+@app.route('/profile/remove_playlist', methods=['POST'])
+def remove_playlist():
+    db = get_db()
+    playlist_name = request.form.get('playlist_name')
+    user_id = session['user_id']
+    print(f"user_id: {user_id}, playlist_name: {playlist_name}")
+    try:
+        db.execute(
+            "DELETE FROM user_playlists WHERE user_id = ? and playlist_name = ?", (user_id, playlist_name)
+        )
+        print("delete went through")
+    except:
+        print("error")
+    db.commit()
 
     return redirect(url_for('profile'))
 
