@@ -9,7 +9,7 @@
 
 {% for playlist in playlists %}
 <span>
-    <ul>{{ playlist["name"] }}</ul>
+    <ul>{{ playlist[0] }}</ul>
     <form action="post">
         <button type="submit">Remove</button>
     </form>
@@ -21,6 +21,7 @@
         <label for="playlist_url">Playlist url: </label>
         <input name="playlist_url" id="playlist_url" type="text">
         <button type="submit">Add</button>
+        <p>(Playlists created by Spotify are not available)</p>
     </span>
 </form>
 {% endblock %}

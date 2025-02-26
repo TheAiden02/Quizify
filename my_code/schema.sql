@@ -9,8 +9,9 @@ CREATE TABLE user (
 
 CREATE TABLE user_playlists (
   user_id INTEGER,
-  playlist_name TEXT UNIQUE NOT NULL,
-  playlist_url TEXT UNIQUE NOT NULL,
+  playlist_name TEXT NOT NULL,
+  playlist_url TEXT NOT NULL,
+  PRIMARY KEY (user_id, playlist_url),
   FOREIGN KEY (user_id) REFERENCES user(id)
   
 );

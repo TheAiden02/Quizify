@@ -1,6 +1,6 @@
 from flask import current_app as app
 from flask import Flask, session, redirect, url_for, request, render_template, flash, jsonify
-from spotipy import Spotify
+from spotipy import Spotify, SpotifyException
 import random
 from .auth import get_spotify_oauth, login_required
 from my_code.db import get_db
@@ -190,40 +190,54 @@ def grade():
 # This route is for loading the profile page
 @app.route('/profile')
 def profile():
-    return render_template('profile.html', playlists=[{"name": "playlist1"}, {"name": "playlist2"}])
+    playlists = []
+    db = get_db()
+    user_id = session.get('user_id')
+    print(type(user_id))
+    playlists = db.execute(
+        'SELECT playlist_name FROM user_playlists WHERE user_id=?', (user_id,)
+    ).fetchall()
+    return render_template('profile.html', playlists=playlists)
 
 @app.route('/profile/add_playlist', methods=['POST'])
 def add_playlist():
-    playlist = {}
+    response = {}
     playlist_url = request.form.get('playlist_url')
     db = get_db()
-    error = None
 
     token_info = session.get('token_info')
     sp = Spotify(auth=token_info['access_token'])
 
     try:
-        playlist = sp.playlist(playlist_url)
-        playlist_name = playlist["name"]
+        response = sp.playlist(playlist_url)
+        playlist_name = response["name"]
+    except SpotifyException: 
+        print("Spotify exception")
+        flash(SpotifyException)
+        return redirect(url_for('profile'))
     except:
-        flash("Not a valid spotify url")
+        flash("Some error occurred. Wish I could tell you more lol sorry")
+
+    print(playlist_name)
     
-    if playlist:
-        if error is None:
-            try:
-                db.execute(
-                    "INSERT INTO user_playlists (user_id, playlist_name, playlist_url) VALUES (?, ?, ?)",
-                    (
-                        session['user_id'],
-                        playlist_name,
-                        playlist_url
-                    ),
-                ).fetchone()
-                db.commit()
-            except db.IntegrityError:
-                error = f"Playlist {playlist_name} is already added."
-            else:
-                return redirect(url_for("auth.login")) 
+    if response:
+        try:
+            db.execute(
+                "INSERT INTO user_playlists (user_id, playlist_name, playlist_url) VALUES (?, ?, ?)",
+                (
+                    session['user_id'],
+                    playlist_name,
+                    playlist_url
+                ),
+            )
+            db.commit()
+        except db.IntegrityError:
+            error = f"Playlist {playlist_name} is already added."
+            print(error)
+        except db.Error:
+            print(f"error {db.Error.sqlite_errorcode}: {db.Error.sqlite_errorname}")
+        except:
+            print("An unkown error occurred when trying to insert playlist")
 
     return redirect(url_for('profile'))
 
