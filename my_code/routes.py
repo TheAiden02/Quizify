@@ -3,6 +3,7 @@ from flask import Flask, session, redirect, url_for, request, render_template, f
 from spotipy import Spotify
 import random
 from .auth import get_spotify_oauth, login_required
+from my_code.db import get_db
 import ast
 import json
 
@@ -185,6 +186,46 @@ def grade():
     correct = session['score']
     total = session['game_length']
     return render_template('grade.html', correct=correct, total=total)
+
+# This route is for loading the profile page
+@app.route('/profile')
+def profile():
+    return render_template('profile.html', playlists=[{"name": "playlist1"}, {"name": "playlist2"}])
+
+@app.route('/profile/add_playlist', methods=['POST'])
+def add_playlist():
+    playlist = {}
+    playlist_url = request.form.get('playlist_url')
+    db = get_db()
+    error = None
+
+    token_info = session.get('token_info')
+    sp = Spotify(auth=token_info['access_token'])
+
+    try:
+        playlist = sp.playlist(playlist_url)
+        playlist_name = playlist["name"]
+    except:
+        flash("Not a valid spotify url")
+    
+    if playlist:
+        if error is None:
+            try:
+                db.execute(
+                    "INSERT INTO user_playlists (user_id, playlist_name, playlist_url) VALUES (?, ?, ?)",
+                    (
+                        session['user_id'],
+                        playlist_name,
+                        playlist_url
+                    ),
+                ).fetchone()
+                db.commit()
+            except db.IntegrityError:
+                error = f"Playlist {playlist_name} is already added."
+            else:
+                return redirect(url_for("auth.login")) 
+
+    return redirect(url_for('profile'))
 
 # Spotify sends authentication data here after user logs into spotify
 @app.route('/callback')

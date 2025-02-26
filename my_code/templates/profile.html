@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Profile{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<h3>My playlists</h3>
+
+{% for playlist in playlists %}
+<span>
+    <ul>{{ playlist["name"] }}</ul>
+    <form action="post">
+        <button type="submit">Remove</button>
+    </form>
+</span>
+{% endfor %}
+<form action="/profile/add_playlist" method="post"> 
+    <h3>Add playlist</h3>
+    <span>
+        <label for="playlist_url">Playlist url: </label>
+        <input name="playlist_url" id="playlist_url" type="text">
+        <button type="submit">Add</button>
+    </span>
+</form>
+{% endblock %}
