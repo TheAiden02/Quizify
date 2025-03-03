@@ -19,9 +19,7 @@ def refresh_token():
             token_info = sp_oauth.refresh_access_token(token_info['refresh_token'])
             session['token_info'] = token_info  # Update the session with the new token
 
-
-@login_required
-@app.route('/', methods=('GET', 'POST'))
+@app.route('/', methods=['GET', 'POST'])
 def home():
         
     session['source'] = None
@@ -30,8 +28,8 @@ def home():
     if request.method == 'POST':
         selected_game_length = request.form.get('question_Number')
         #Assign values at the start of game based on the home page selection
-        session['source'] = request.form.get('source')
-        session['selectedSource'] = request.form.get('selectedSource')
+        session['source'] = request.form.get('source') # The user's choice of their own playlists or the built-in public playlists
+        session['selected_source'] = request.form.get('selectedSource') # The specific chosen playlist
 
         if selected_game_length: # Check to make sure the user selected a game mode
             session['game_length'] = int(selected_game_length) # Store the selected option in session
@@ -42,7 +40,24 @@ def home():
             flash('You must select one option')
             return redirect(url_for('home'))
         
-    return render_template('home.html')
+    user_playlists = []
+    current_user = session.get('user_id')
+
+    if current_user is not None:
+        db = get_db()
+        user_playlists = db.execute(
+            'SELECT * FROM user_playlists WHERE user_id = ?', (session['user_id'],)
+        ).fetchall()
+
+    user_playlists = [ dict(row) for row in user_playlists ] # Convert each sqlite3.row into a json serializable dictionary so javascript can handle it
+        
+    return render_template('home.html', playlists = user_playlists)
+
+@app.route('/home/get_select', methods=['POST'])
+def get_select():
+    source = request.form.get('source')
+
+    return redirect(url_for('home'))
 
 
 #Game_cards route - render game_cards.html + retrieve songs from database and display round options
@@ -50,7 +65,7 @@ def home():
 def game_cards():
 
     # If the user is playing with their own library, make sure they are logged in
-    if session['source'] == 'myLibrary' and 'token_info' not in session:
+    if session['source'] == 'my_playlists' and 'token_info' not in session:
         return redirect(url_for('auth.login'))
 
     #Initiate the results variables
@@ -93,22 +108,36 @@ def game_cards():
     saved_tracks = []
     index = 0
     playlist_id = ''
-    if session['source'] == 'myLibrary':
+    if session['source'] == 'my_playlists':
         # get access token for logged-in user
         token_info = session.get('token_info')
         sp = Spotify(auth=token_info['access_token'])
 
-        results = sp.current_user_saved_tracks(limit=50, offset=index)
-        print(type(results))
-        if len(results['items']):
-            saved_tracks.extend(results['items'])
-            index += 50
+        # get the current user's playlists
+        db = get_db()
+        user_playlist_urls = db.execute(
+            'SELECT playlist_url FROM user_playlists WHERE user_id = ?', (session.get('user_id'),)
+        ).fetchall()
+
+        if session['selected_source'] == 'my_library':
+            results = sp.current_user_saved_tracks(limit=50, offset=index)
+            if len(results['items']):
+                saved_tracks.extend(results['items'])
+                index += 50
+        else:
+            print(session['selected_source'])
+            results = sp.playlist_items(session['selected_source'])
+            if len(results['items']):
+                saved_tracks.extend(results['items'])
+                index += 50
+
+
     else:
         # get non-user-specific access token with client credentials flow
         auth_manager = get_spotify_oauth('cli')
         sp = Spotify(auth_manager=auth_manager)
         
-        match session['selectedSource']:
+        match session['selected_source']:
             case 'classicRock':
                 playlist_id = '1ti3v0lLrJ4KhSTuxt4loZ'
             case 'pop':
@@ -187,7 +216,7 @@ def grade():
     total = session['game_length']
     return render_template('grade.html', correct=correct, total=total)
 
-# This route is for loading the profile page
+# This route is for loading the profile page. It grabs all of the playlists associated with the current user from the database and sends them as a list of SQL rows to the frontend
 @app.route('/profile')
 def profile():
     playlists = []
@@ -202,6 +231,7 @@ def profile():
 
     return render_template('profile.html', playlists = playlists)
 
+# Route for adding playlists to the user_playlist table of the database. Gets a spotify url from the frontend, sends it to Spotify to get the playlist, and adds the playlist data to the database.
 @app.route('/profile/add_playlist', methods=['POST'])
 def add_playlist():
     if "user_id" not in session:
@@ -252,6 +282,7 @@ def add_playlist():
 
     return redirect(url_for('profile'))
 
+# Removes playlists from the user_playlists table of the database
 @app.route('/profile/remove_playlist', methods=['POST'])
 def remove_playlist():
     db = get_db()

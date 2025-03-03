@@ -29,32 +29,23 @@
             <h3>Song Selection</h3>
             <ul class="startMenu">
                 <li>
-                    <input type="radio" id="myLibrary" name="source" value="myLibrary" checked="checked"></input>
-                    <label for ="myLibrary">My Library</label>
+                    <input type="radio" id="my_playlists" name="source" value="my_playlists"></input>
+                    <label for ="my_playlists">My Playlists</label>
                 </li>
                 <li>
-                    <input type="radio" id="spotify" name="source" value="spotify">
+                    <input type="radio" id="spotify" name="source" value="spotify" checked="checked">
                     <label for="spotify">Spotify Playlist</label>
                 </li>
                 <li id="selectPlaylist">
-                    <label for="selectedSource">Select a playlist</label>
-                    
-                    <!-- Removed conditional display for now, choose between players library or spotify genre specific playlist
-                    {% if source == 'myLibrary' %}
-                        <select name="selectedSource" id="myPlaylist">
-                            <option value="playlist1"> Playlist1</option>
-                            <option value="playlist2">Playlist2</option>
-                            <option value="playlist3">Playlist3</option>
+                    <label for="selectedSource">
+                        <select name="selectedSource" id="selectedSource">
+                            <option value="classicRock">Classic Rock</option>
+                            <option value="pop">Pop</option>
+                            <option value="indie">Indie</option>
+                            <option value="showtunes">Showtunes</option>
+                            <option value="country">Country</option>
                         </select>
-                    {% else %} -->
-                    <select name="selectedSource" id="spotifyPlaylist">
-                        <option value="classicRock">Classic Rock</option>
-                        <option value="pop">Pop</option>
-                        <option value="indie">Indie</option>
-                        <option value="showtunes">Showtunes</option>
-                        <option value="country">Country</option>
-                    </select>
-                    {% endif %}
+                    </label>
                 </li>
             </ul>
             <ul><li><input class="startGameButton" type="submit" value="Start Game"></li></ul>
@@ -70,28 +61,42 @@
 
 {% block javascript %}
 <script>
-    // Add event listeners for either radio button being clicked. When either button is clicked, toggleInvis is called
-    document.getElementById("myLibrary").addEventListener("click", toggleInvis)
-    document.getElementById("spotify").addEventListener("click", toggleInvis)
-    
-    // Get the playlist dropdown and its label so we can toggle their visibility
-    const element = document.getElementById("selectPlaylist")
+    const selectElement = document.getElementById("selectedSource")
 
-    // Make sure the dropdown displays correctly when the page first loads/reloads
-    if (document.getElementById("myLibrary").checked){
-            element.classList.add("hidden")
-        }
-    else{
-        element.classList.remove("hidden")
-    }
-
-    function toggleInvis(){
-        if (document.getElementById("myLibrary").checked){
-            element.classList.add("hidden")
+    function addUserPlaylistOptions(){
+        playlists = {{ playlists|tojson }}
+        selectElement.innerHTML = ""
+        if(playlists.length === 0){
+            option = new Option("Log in to play with your own playlists")
+            selectElement.add(option)
         }
         else{
-            element.classList.remove("hidden")
+            playlists.forEach(playlist =>  {
+                option = new Option(playlist["playlist_name"], playlist["playlist_url"])
+                selectElement.add(option)
+            })
         }
     }
+
+    function addGenericPlaylistOptions(){
+        selectElement.innerHTML = `
+            <option value="classicRock">Classic Rock</option>
+            <option value="pop">Pop</option>
+            <option value="indie">Indie</option>
+            <option value="showtunes">Showtunes</option>
+            <option value="country">Country</option>
+        `
+    }
+
+    if (document.getElementById("my_playlists").checked){
+        addUserPlaylistOptions()
+    } else{
+        addGenericPlaylistOptions()
+    }
+
+    // Add event listeners for either radio button being clicked. When either button is clicked, toggleInvis is called
+    document.getElementById("spotify").addEventListener("click", addGenericPlaylistOptions)
+    document.getElementById("my_playlists").addEventListener("click", addUserPlaylistOptions)
+
 </script>
 {% endblock %}
