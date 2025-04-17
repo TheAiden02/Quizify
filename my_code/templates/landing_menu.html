@@ -1,10 +1,38 @@
-{% extends 'base.html' %}
+<!doctype html>
+<html lang="en">
+<head>
+  <title>{% block title %}{% endblock %} - Quizify</title>
+  <!-- <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}"> -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='landing.css') }}">
 
+</head>
+<body>
 {% block header %}
-<h1>{% block title %}Quizify {% endblock %}</h1>{% endblock %}
-
-{% block content %}
     {% block main_title %}
         <h1>Welcome to Quizify</h1>
     {% endblock %}
 {% endblock %}
+<div class="landing">
+    <div class="left_pane">
+        {% block left_pane %}
+        <h1><a href="{{ url_for('auth.login') }}" class="homeLink">Log In</a></h1>
+        <ul>
+            <li>Play with friends</li>
+            <li>Import your playlists</li>
+            <li>Track your high score</li>
+        </ul>
+        </div>
+    {% endblock %}
+    <h1 id="middle">or</h1>
+    <div class = "right_pane">
+        {% block right_pane %}
+        <h1><a href="{{ url_for('game_setup') }}" class="homeLink">Play as a guest</a></h1>
+        <button id="randomGame">Start a game!</button>
+    
+        {% endblock %} 
+    </div>
+</div>
+
+
+</body>
+</html>
