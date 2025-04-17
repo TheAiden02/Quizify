@@ -5,7 +5,6 @@ import random
 from .auth import get_spotify_oauth, login_required
 from my_code.db import get_db
 import ast
-import json
 
 # Below code was used to refresh expired tokens, leaving this commented out until I fix user authentication bugs
 
@@ -24,21 +23,24 @@ def refresh_token():
 def landing_menu():
     return render_template('landing_menu.html')
 
-@app.route('/game_modes')
+@app.route('/game_modes', methods=['GET', 'POST'])
 def showHomeMenu():
+    if request.method == 'POST':
+        session['game_mode'] = request.form.get('game_mode')
+        return redirect(url_for('game_setup'))
     return render_template('game_modes.html')
 
 
 @app.route('/game_setup', methods=['GET', 'POST'])
 def game_setup():
         
-    session['source'] = None
+    session['playlist_source'] = None
 
     # Anything involving user input from the home page goes here
     if request.method == 'POST':
         selected_game_length = request.form.get('question_Number')
         #Assign values at the start of game based on the home page selection
-        session['source'] = request.form.get('source') # The user's choice of their own playlists or the built-in public playlists
+        session['playlist_source'] = request.form.get('source') # The user's choice of their own playlists or the built-in public playlists
         session['selected_source'] = request.form.get('selectedSource') # The specific chosen playlist
 
         if selected_game_length: # Check to make sure the user selected a game mode
@@ -61,13 +63,7 @@ def game_setup():
 
     user_playlists = [ dict(row) for row in user_playlists ] # Convert each sqlite3.row into a json serializable dictionary so javascript can handle it
         
-    return render_template('game_setup.html', playlists = user_playlists)
-
-@app.route('/game_setup/get_select', methods=['POST'])
-def get_select():
-    source = request.form.get('source')
-
-    return redirect(url_for('game_setup'))
+    return render_template('game_setup.html', playlists = user_playlists, game_mode = session['game_mode'])
 
 
 #Game_cards route - render game_cards.html + retrieve songs from database and display round options
@@ -75,7 +71,7 @@ def get_select():
 def game_cards():
 
     # If the user is playing with their own library, make sure they are logged in
-    if session['source'] == 'my_playlists' and 'token_info' not in session:
+    if session['playlist_source'] == 'my_playlists' and 'token_info' not in session:
         return redirect(url_for('auth.login'))
 
     #Initiate the results variables
@@ -118,7 +114,7 @@ def game_cards():
     saved_tracks = []
     index = 0
     playlist_id = ''
-    if session['source'] == 'my_playlists':
+    if session['playlist_source'] == 'my_playlists':
         # get access token for logged-in user
         token_info = session.get('token_info')
         sp = Spotify(auth=token_info['access_token'])
@@ -211,7 +207,7 @@ def game_cards():
 
 
 
-    return render_template('game_cards.html', source=session['source'], choices=choices, question=question, game_length=session['game_length'], result=session['result'], feedback=session['feedback'], reveal=False)
+    return render_template('game_cards.html', source=session['playlist_source'], choices=choices, question=question, game_length=session['game_length'], result=session['result'], feedback=session['feedback'], reveal=False)
 
 @app.route('/game_cards_answers')
 def game_cards_answers(source, choices, question, game_length, result, feedback):
@@ -318,8 +314,8 @@ def callback():
     token_info = sp_oauth.get_access_token(code)
     session['token_info'] = token_info
 
-    # If the user got here by clicking start game, session['source'] has been initialized and they should be sent to game_cards to start playing
-    if session['source'] != None:
+    # If the user got here by clicking start game, session['playlist_source'] has been initialized and they should be sent to game_cards to start playing
+    if session['playlist_source'] != None:
         return redirect(url_for('game_cards'))
     else: # If the user got here by clicking login from the home page, they should be sent back to the home page where they can set up their game.
         return redirect(url_for('game_setup'))

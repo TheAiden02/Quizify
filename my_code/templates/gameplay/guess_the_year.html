@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+<!-- This page will receive the following variables from the server:
+       - song # a json-like object holding metadata for the song the user is currently guessing
+            song format:    {
+                                "name": str
+                                "uri": str
+                                "album_art": image
+                                "release_date": str 'YYYY-MM-DD'
+                            } 
+
+    This page will send the following information to the server:
+        - user_guess_year # an int representing the user's guess
+-->

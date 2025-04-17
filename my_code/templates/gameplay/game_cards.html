@@ -1,18 +1,8 @@
-{% extends base.html %}
-
-{% block question %}
-{% if game_length == 0 %}
-    {% set game_length = '∞' %}
-{% endif %}
-<h2>
-    Question: {{ question }} / {{ game_length }}
-</h2>
-{% endblock %}
+{% extends 'gameplay.html' %}
 
 {% block header %}
   <h1>{% block title %}game cards{% endblock %}</h1>
 {% endblock %}
-
 
 {% block content %}
    

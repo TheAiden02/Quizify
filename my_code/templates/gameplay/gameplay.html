@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+<!--
+This template will serve as a base template for all gameplay pages (pages where the user is actually being served game options and can submite guesses, score, etc.).
+It will contain all elements that are shared among gameplay pages like question number or current score
+-->
+
+
+{% block nav_data %}
+<!-- Display the current question number-->
+{% if game_length == 0 %}
+    {% set game_length = '∞' %}
+{% endif %}
+<h2>
+    Question: {{ question }} / {{ game_length }}
+</h2>
+{% endblock %}
+

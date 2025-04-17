@@ -9,7 +9,7 @@
     <nav>
       
       <h1><a href="{{ url_for('showHomeMenu') }}">Quizify</a></h1>
-      <h2>{% block question %}{% endblock %} </h2>
+      <h2>{% block nav_data %}{% endblock %} </h2>
       <ul>
         {% if g.user %}
           <li><a href="{{ url_for('profile')}}">{{ g.user['username'] }}</a>
