@@ -1,6 +1,6 @@
-from flask import current_app as app
-from flask import Flask, session, redirect, url_for, request, render_template, flash, jsonify
-from spotipy import Spotify, SpotifyException
+from flask import current_app as app #type:ignore
+from flask import Flask, session, redirect, url_for, request, render_template, flash, jsonify #type:ignore
+from spotipy import Spotify, SpotifyException #type:ignore
 import random
 from .auth import get_spotify_oauth, login_required
 from my_code.db import get_db
@@ -19,8 +19,18 @@ def refresh_token():
             token_info = sp_oauth.refresh_access_token(token_info['refresh_token'])
             session['token_info'] = token_info  # Update the session with the new token
 
-@app.route('/', methods=['GET', 'POST'])
-def home():
+
+@app.route('/')
+def landing_menu():
+    return render_template('landing_menu.html')
+
+@app.route('/game_modes')
+def showHomeMenu():
+    return render_template('game_modes.html')
+
+
+@app.route('/game_setup', methods=['GET', 'POST'])
+def game_setup():
         
     session['source'] = None
 
@@ -51,13 +61,13 @@ def home():
 
     user_playlists = [ dict(row) for row in user_playlists ] # Convert each sqlite3.row into a json serializable dictionary so javascript can handle it
         
-    return render_template('home.html', playlists = user_playlists)
+    return render_template('game_setup.html', playlists = user_playlists)
 
-@app.route('/home/get_select', methods=['POST'])
+@app.route('/game_setup/get_select', methods=['POST'])
 def get_select():
     source = request.form.get('source')
 
-    return redirect(url_for('home'))
+    return redirect(url_for('game_setup'))
 
 
 #Game_cards route - render game_cards.html + retrieve songs from database and display round options
@@ -192,7 +202,7 @@ def game_cards():
     if choices[1]['popularity'] > most_popular['popularity']:
         most_popular = choices[1]
     elif choices[1]['popularity'] == most_popular['popularity']:
-        return redirect(url_for('home'))
+        return redirect(url_for('game_cards'))
     
     question = session['question']
 
@@ -211,7 +221,7 @@ def game_cards_answers(source, choices, question, game_length, result, feedback)
 @app.route('/grade', methods=['GET','POST'])
 def grade():
     if request.method == 'POST':
-        return redirect(url_for('home'))
+        return redirect(url_for('game_modes.html'))
     correct = session['score']
     total = session['game_length']
     return render_template('grade.html', correct=correct, total=total)
@@ -312,6 +322,7 @@ def callback():
     if session['source'] != None:
         return redirect(url_for('game_cards'))
     else: # If the user got here by clicking login from the home page, they should be sent back to the home page where they can set up their game.
-        return redirect(url_for('home'))
+        return redirect(url_for('game_setup'))
+
 
 
